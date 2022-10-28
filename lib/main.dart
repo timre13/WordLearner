@@ -12,14 +12,16 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: "Word Learner",
       theme: ThemeData(
-          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-            backgroundColor: Color(0xff202020),
-            elevation: 1,
-          ),
-          colorScheme: const ColorScheme.dark(
-            secondary: Colors.cyan,
-          ),
-          scaffoldBackgroundColor: const Color(0xff333333)),
+        colorScheme: const ColorScheme.dark(
+          secondary: Colors.cyan,
+        ),
+        scaffoldBackgroundColor: const Color(0xff333333),
+        tabBarTheme: const TabBarTheme(
+          labelColor: Colors.cyan,
+          unselectedLabelColor: Colors.grey,
+          indicator: BoxDecoration(),
+        ),
+      ),
       home: const MainWidget(),
     );
   }
@@ -32,35 +34,56 @@ class MainWidget extends StatefulWidget {
   State<MainWidget> createState() => _MainWidgetState();
 }
 
-class _MainWidgetState extends State<MainWidget> {
-  final _pages = List<Widget>.of(const [
+class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
+  final _pages = const [
     HomePage(),
     ListPage(),
     SettingsPage(),
-  ]);
-  int _currentPageI = 0;
+  ];
+
+  //final _pageNames = const [
+  //  "Home",
+  //  "List",
+  //  "Settings",
+  //];
+
+  final _pageIcons = const [
+    Icons.home,
+    Icons.list,
+    Icons.settings,
+  ];
+
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+        length: _pages.length,
+        vsync: this,
+        animationDuration: const Duration(milliseconds: 200));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: _pages[_currentPageI]),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: (int x) {
-          setState(() {
-            _currentPageI = x;
-          });
-        },
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: "List"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: "Settings"),
-        ],
-        currentIndex: _currentPageI,
-      ),
-    );
+        bottomNavigationBar: TabBar(
+          tabs: Iterable.generate(_pages.length)
+              .toList()
+              .map((i) => Tab(
+                    icon: Icon(_pageIcons[i], size: 40),
+                    //text: _pageNames[i],
+                  ))
+              .toList(),
+          controller: _tabController,
+        ),
+        body: SafeArea(
+          child: TabBarView(
+            controller: _tabController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: _pages,
+          ),
+        ));
   }
 }
 
@@ -99,9 +122,27 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage>
+    with AutomaticKeepAliveClientMixin<SettingsPage> {
+  final _textFieldVal = "Default Value";
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text("Settings"));
+    super.build(context);
+
+    var fieldWidget =
+        TextField(controller: TextEditingController(text: _textFieldVal));
+
+    return Center(
+      child: Column(
+        children: [
+          const Text("Settings"),
+          fieldWidget,
+        ],
+      ),
+    );
   }
 }
