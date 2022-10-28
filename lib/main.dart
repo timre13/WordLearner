@@ -108,10 +108,42 @@ class ListPage extends StatefulWidget {
   State<ListPage> createState() => _ListPageState();
 }
 
+class Word {
+  String side1;
+  String side2;
+
+  Word(this.side1, this.side2);
+}
+
 class _ListPageState extends State<ListPage> {
+  final _cards = {
+    Word("Alma", "Apple"),
+    Word("Banán", "Banana"),
+    Word("Citrom", "Lemon"),
+  };
+
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text("List"));
+    return Center(
+        child: Container(
+      decoration: BoxDecoration(
+          color: const Color(0xff202020),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(64),
+              blurRadius: 10,
+              spreadRadius: 5,
+            )
+          ]),
+      width: 250,
+      height: 500,
+      child: Center(
+          child: Text(
+        _cards.first.side1,
+        style: const TextStyle(color: Color(0xffaaaaaa), fontSize: 30),
+      )),
+    ));
   }
 }
 
