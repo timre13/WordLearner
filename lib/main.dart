@@ -122,28 +122,73 @@ class _ListPageState extends State<ListPage> {
     Word("Citrom", "Lemon"),
   };
 
+  var _isCardSide1 = true;
+  double _cardXDrag = 0.0;
+  double _cardYDrag = 0.0;
+  int _cardAnimDurMs = 0;
+
+  static const _cardW = 250;
+  static const _cardH = 500;
+
+  Matrix4 _calcDragTransfMat(double xDrag, double yDrag) {
+    return Matrix4.translationValues(
+            _cardW / 2 + xDrag, _cardH.toDouble() + yDrag / 4, 0) *
+        Matrix4.rotationZ(xDrag / 3000) *
+        Matrix4.translationValues(-_cardW / 2, -_cardH.toDouble(), 0);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
-        child: Container(
-      decoration: BoxDecoration(
-          color: const Color(0xff202020),
-          borderRadius: const BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(64),
-              blurRadius: 10,
-              spreadRadius: 5,
-            )
-          ]),
-      width: 250,
-      height: 500,
-      child: Center(
-          child: Text(
-        _cards.first.side1,
-        style: const TextStyle(color: Color(0xffaaaaaa), fontSize: 30),
-      )),
-    ));
+        child: AnimatedContainer(
+            duration: Duration(milliseconds: _cardAnimDurMs),
+            transform: _calcDragTransfMat(_cardXDrag * 1.2, _cardYDrag),
+            width: _cardW.toDouble(),
+            height: _cardH.toDouble(),
+            child: Material(
+              clipBehavior: Clip.antiAlias,
+              color: const Color(0xff202020),
+              borderRadius:
+                  const BorderRadiusDirectional.all(Radius.circular(20)),
+              child: GestureDetector(
+                child: InkWell(
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.white.withAlpha(10),
+                    child: Center(
+                      child: Text(
+                        (_isCardSide1
+                                ? _cards.first.side1
+                                : _cards.first.side2) +
+                            "\n" +
+                            _cardXDrag.toString(),
+                        style: const TextStyle(
+                            color: Color(0xffaaaaaa), fontSize: 30),
+                      ),
+                    ),
+                    // Note: Use the InkWell's `onTap()` because it seems to get
+                    // executed earlier than the GestureDetector's
+                    onTap: () {
+                      setState(() {
+                        _isCardSide1 = !_isCardSide1;
+                      });
+                    }),
+                onPanUpdate: (details) {
+                  setState(() {
+                    _cardXDrag += details.delta.dx;
+                    _cardYDrag += details.delta.dy;
+                    _cardAnimDurMs = 0;
+                  });
+                },
+                onPanEnd: (details) {
+                  setState(() {
+                    _cardXDrag = 0;
+                    _cardYDrag = 0;
+                    // Animate when the card is moving back to center
+                    _cardAnimDurMs = 100;
+                  });
+                },
+              ),
+            )));
   }
 }
 
