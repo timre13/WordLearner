@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -126,6 +127,7 @@ class _ListPageState extends State<ListPage> {
   double _cardXDrag = 0.0;
   double _cardYDrag = 0.0;
   int _cardAnimDurMs = 0;
+  var _isFlipping = false;
 
   static const _cardW = 250;
   static const _cardH = 500;
@@ -134,13 +136,15 @@ class _ListPageState extends State<ListPage> {
     return Matrix4.translationValues(
             _cardW / 2 + xDrag, _cardH.toDouble() + yDrag / 4, 0) *
         Matrix4.rotationZ(xDrag / 3000) *
-        Matrix4.translationValues(-_cardW / 2, -_cardH.toDouble(), 0);
+        Matrix4.translationValues(-_cardW / 2, -_cardH.toDouble(), 0) *
+        Matrix4.rotationY(_isFlipping ? pi / 2 : 0);
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
         child: AnimatedContainer(
+            transformAlignment: Alignment.center,
             duration: Duration(milliseconds: _cardAnimDurMs),
             transform: _calcDragTransfMat(_cardXDrag * 1.2, _cardYDrag),
             width: _cardW.toDouble(),
@@ -157,10 +161,8 @@ class _ListPageState extends State<ListPage> {
                     child: Center(
                       child: Text(
                         (_isCardSide1
-                                ? _cards.first.side1
-                                : _cards.first.side2) +
-                            "\n" +
-                            _cardXDrag.toString(),
+                            ? _cards.first.side1
+                            : _cards.first.side2),
                         style: const TextStyle(
                             color: Color(0xffaaaaaa), fontSize: 30),
                       ),
@@ -169,7 +171,15 @@ class _ListPageState extends State<ListPage> {
                     // executed earlier than the GestureDetector's
                     onTap: () {
                       setState(() {
-                        _isCardSide1 = !_isCardSide1;
+                        _cardAnimDurMs = 200;
+                        _isFlipping = true;
+                      });
+
+                      Future.delayed(const Duration(milliseconds: 200), () {
+                        setState(() {
+                          _isCardSide1 = !_isCardSide1;
+                          _isFlipping = false;
+                        });
                       });
                     }),
                 onPanUpdate: (details) {
