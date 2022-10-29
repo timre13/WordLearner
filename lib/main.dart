@@ -5,6 +5,22 @@ void main() {
   runApp(const App());
 }
 
+int getRandomWordI(List<Word> words, [int lastVal = -1]) {
+  final sum = words.map((e) => e.priority).reduce((val, elem) => val + elem);
+  int randomWeight = (Random().nextDouble() * sum).round();
+
+  int i;
+  for (i = 0; i < words.length; ++i) {
+    randomWeight -= words.elementAt(i).priority;
+    if (randomWeight <= 0) {
+      break;
+    }
+  }
+  // Retry
+  if (i == lastVal) return getRandomWordI(words, lastVal);
+  return i;
+}
+
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -112,25 +128,57 @@ class ListPage extends StatefulWidget {
 class Word {
   String side1;
   String side2;
+  int _priority = 100;
+
+  void incPriority() {
+    ++_priority;
+  }
+
+  void decPriority() {
+    --_priority;
+  }
+
+  int get priority => _priority;
 
   Word(this.side1, this.side2);
 }
 
+enum CardAction {
+  normal,
+  dontKnow,
+  know,
+}
+
 class _ListPageState extends State<ListPage> {
-  final _cards = {
+  final _cards = [
     Word("Alma", "Apple"),
     Word("Banán", "Banana"),
     Word("Citrom", "Lemon"),
-  };
+  ];
 
+  final _cardColors = const [
+    Color(0xff202020), // Normal
+    Color(0xff251b1b), // Dontknow
+    Color(0xff222a1e), // Know
+  ];
+
+  late int _cardI;
   var _isCardSide1 = true;
   double _cardXDrag = 0.0;
   double _cardYDrag = 0.0;
   int _cardAnimDurMs = 0;
   var _isFlipping = false;
 
+  CardAction _cardAction = CardAction.normal;
+
   static const _cardW = 250;
   static const _cardH = 500;
+
+  @override
+  void initState() {
+    super.initState();
+    _cardI = getRandomWordI(_cards);
+  }
 
   Matrix4 _calcDragTransfMat(double xDrag, double yDrag) {
     return Matrix4.translationValues(
@@ -151,9 +199,10 @@ class _ListPageState extends State<ListPage> {
             height: _cardH.toDouble(),
             child: Material(
               clipBehavior: Clip.antiAlias,
-              color: const Color(0xff202020),
+              color: _cardColors[_cardAction.index],
               borderRadius:
                   const BorderRadiusDirectional.all(Radius.circular(20)),
+              shadowColor: Colors.red,
               child: GestureDetector(
                 child: InkWell(
                     highlightColor: Colors.transparent,
@@ -161,8 +210,8 @@ class _ListPageState extends State<ListPage> {
                     child: Center(
                       child: Text(
                         (_isCardSide1
-                            ? _cards.first.side1
-                            : _cards.first.side2),
+                            ? _cards.elementAt(_cardI).side1
+                            : _cards.elementAt(_cardI).side2),
                         style: const TextStyle(
                             color: Color(0xffaaaaaa), fontSize: 30),
                       ),
@@ -183,6 +232,19 @@ class _ListPageState extends State<ListPage> {
                       });
                     }),
                 onPanUpdate: (details) {
+                  if (_cardXDrag > _cardW / 4) {
+                    setState(() {
+                      _cardAction = CardAction.know;
+                    });
+                  } else if (_cardXDrag < -_cardW / 4) {
+                    setState(() {
+                      _cardAction = CardAction.dontKnow;
+                    });
+                  } else {
+                    setState(() {
+                      _cardAction = CardAction.normal;
+                    });
+                  }
                   setState(() {
                     _cardXDrag += details.delta.dx;
                     _cardYDrag += details.delta.dy;
@@ -190,11 +252,23 @@ class _ListPageState extends State<ListPage> {
                   });
                 },
                 onPanEnd: (details) {
+                  if (_cardAction == CardAction.know) {
+                    _cards.elementAt(_cardI).decPriority();
+                    setState(() {
+                      _cardI = getRandomWordI(_cards, _cardI);
+                      _isCardSide1 = true; // Flip back the card
+                    });
+                  }
+                  /* else if (_cardAction == CardAction.dontKnow) {
+                    _cards.elementAt(_cardI).incPriority();
+                  }*/
+
                   setState(() {
                     _cardXDrag = 0;
                     _cardYDrag = 0;
                     // Animate when the card is moving back to center
                     _cardAnimDurMs = 100;
+                    _cardAction = CardAction.normal;
                   });
                 },
               ),
