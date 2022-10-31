@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 
 import 'words.dart';
@@ -41,6 +42,15 @@ class _HomePageState extends State<HomePage> {
               icon: Icons.info,
               label: "About WordLearner...",
               onPressed: () {
+                WidgetsFlutterBinding.ensureInitialized();
+                PackageInfo.fromPlatform().then((pkgInfo) {
+                  showAboutDialog(
+                      context: context,
+                      applicationName: pkgInfo.appName,
+                      applicationVersion: "${pkgInfo.packageName}"
+                          "\n\nVersion: ${pkgInfo.version}"
+                          "\nBuild number: ${pkgInfo.buildNumber}");
+                });
               }),
         ],
       ),
