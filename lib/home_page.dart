@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
@@ -14,6 +16,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            icon: const Icon(Icons.error),
+            iconColor: Colors.red,
+          );
+        });
+  }
+
+  void _showInfoDialog(String title, String message) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            icon: const Icon(Icons.info),
+            iconColor: Colors.blue,
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -30,7 +58,19 @@ class _HomePageState extends State<HomePage> {
                     dialogType: OpenFileDialogType.document);
                 FlutterFileDialog.pickFile(params: params).then((value) {
                   if (value != null) {
-                    widget.setCardsCb(loadWords(value));
+                    List<Word> words = [];
+                    try {
+                      words = loadWordsOrThrow(value);
+                    } on FormatException catch (e) {
+                      _showErrorDialog("Failed to load wordlist", e.message);
+                    } on FileSystemException catch (e) {
+                      _showErrorDialog("Failed to load wordlist", e.message);
+                    }
+                    if (words.isNotEmpty) {
+                      _showInfoDialog("Loaded wordlist",
+                          "Loaded ${words.length} word pairs");
+                    }
+                    widget.setCardsCb(words);
                   }
                 });
               }),

@@ -21,7 +21,7 @@ class Word {
   Word(this.side1, this.side2);
 }
 
-List<Word> loadWords(String path) {
+List<Word> loadWordsOrThrow(String path) {
   if (kDebugMode) {
     print("Loading words from $path");
   }
@@ -32,12 +32,18 @@ List<Word> loadWords(String path) {
   List<Word> words = [];
   for (var line in lines) {
     var cols = line.split(",");
-    assert(cols.length == 2);
+    if (cols.length != 2) {
+      throw const FormatException("CSV file has invalid format");
+    }
     words.add(Word(cols.elementAt(0), cols.elementAt(1)));
   }
 
   if (kDebugMode) {
     print("Loaded ${words.length} words");
+  }
+
+  if (words.isEmpty) {
+    throw const FormatException("The wordlist is empty");
   }
 
   return words;
