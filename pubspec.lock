@@ -63,7 +63,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_file_dialog:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flutter_file_dialog
       url: "https://pub.dartlang.org"
@@ -136,7 +136,7 @@ packages:
     source: hosted
     version: "1.8.0"
   package_info_plus:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: package_info_plus
       url: "https://pub.dartlang.org"
