@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 import 'settings_page.dart';
+import 'words.dart';
 
 void main() {
   runApp(const App());
@@ -16,6 +17,10 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: "Word Learner",
       theme: ThemeData(
+        outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.grey,
+        )),
         colorScheme: const ColorScheme.dark(
           secondary: Colors.cyan,
         ),
@@ -39,12 +44,6 @@ class MainWidget extends StatefulWidget {
 }
 
 class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
-  final _pages = const [
-    HomePage(),
-    ListPage(),
-    SettingsPage(),
-  ];
-
   //final _pageNames = const [
   //  "Home",
   //  "List",
@@ -57,13 +56,21 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
     Icons.settings,
   ];
 
+  List<Word> _cards = [];
+
+  void setCards(List<Word> newCards) {
+    setState(() {
+      _cards = newCards;
+    });
+  }
+
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(
-        length: _pages.length,
+        length: _pageIcons.length,
         vsync: this,
         animationDuration: const Duration(milliseconds: 200));
   }
@@ -72,7 +79,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
         bottomNavigationBar: TabBar(
-          tabs: Iterable.generate(_pages.length)
+          tabs: Iterable.generate(_pageIcons.length)
               .toList()
               .map((i) => Tab(
                     icon: Icon(_pageIcons[i], size: 40),
@@ -85,7 +92,11 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
           child: TabBarView(
             controller: _tabController,
             physics: const NeverScrollableScrollPhysics(),
-            children: _pages,
+            children: [
+              HomePage(setCardsCb: setCards),
+              ListPage(cards: _cards),
+              const SettingsPage(),
+            ],
           ),
         ));
   }

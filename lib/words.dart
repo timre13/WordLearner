@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 
 class Word {
   String side1;
@@ -16,6 +19,28 @@ class Word {
   int get priority => _priority;
 
   Word(this.side1, this.side2);
+}
+
+List<Word> loadWords(String path) {
+  if (kDebugMode) {
+    print("Loading words from $path");
+  }
+
+  // TODO: Async
+  var lines = File(path).readAsLinesSync();
+
+  List<Word> words = [];
+  for (var line in lines) {
+    var cols = line.split(",");
+    assert(cols.length == 2);
+    words.add(Word(cols.elementAt(0), cols.elementAt(1)));
+  }
+
+  if (kDebugMode) {
+    print("Loaded ${words.length} words");
+  }
+
+  return words;
 }
 
 int getRandomWordI(List<Word> words, [int lastVal = -1]) {

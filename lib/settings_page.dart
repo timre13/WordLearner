@@ -24,7 +24,10 @@ class _SettingsPageState extends State<SettingsPage>
     return Center(
       child: Column(
         children: [
-          const Text("Settings"),
+          const Text(
+            "Settings",
+            textScaleFactor: 2,
+          ),
           fieldWidget,
         ],
       ),
