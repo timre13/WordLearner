@@ -157,7 +157,7 @@ class _CardWidgetState extends State<CardWidget> {
             },
             onPanEnd: (details) {
               if (widget.data.cardAction == CardAction.know) {
-                widget.cards.elementAt(widget.data.cardI!).decPriority();
+                widget.cbs.decCardPriorityCb(widget.data.cardI!);
                 setState(() {
                   widget.data.cardI =
                       getRandomWordI(widget.cards, widget.data.cardI!);
