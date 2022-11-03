@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:word_learner/main.dart';
 
 import 'words.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.setCardsCb}) : super(key: key);
+  const HomePage({Key? key, required this.cbs}) : super(key: key);
 
-  final void Function(List<Word> newCards) setCardsCb;
+  final HomePageCallbacks cbs;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -70,7 +71,7 @@ class _HomePageState extends State<HomePage> {
                       _showInfoDialog("Loaded wordlist",
                           "Loaded ${words.length} word pairs");
                     }
-                    widget.setCardsCb(words);
+                    widget.cbs.setCardsCb(words);
                   }
                 });
               }),

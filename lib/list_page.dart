@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:word_learner/main.dart';
 import 'dart:math';
 
 import 'words.dart';
 
 class ListPage extends StatefulWidget {
-  const ListPage({Key? key, required this.cards}) : super(key: key);
+  const ListPage({Key? key, required this.cards, required this.cbs})
+      : super(key: key);
+
+  final ListPageCallbacks cbs;
 
   final List<Word> cards;
 
@@ -46,6 +50,11 @@ class _ListPageState extends State<ListPage> {
     super.initState();
   }
 
+  // TODO: Modes:
+  // - priority
+  // - randomized
+  // - original order
+
   @override
   Widget build(BuildContext context) {
     Widget w;
@@ -53,15 +62,18 @@ class _ListPageState extends State<ListPage> {
       w = const Text("No list open");
     } else {
       _data.cardI ??= getRandomWordI(widget.cards);
-      w = CardWidget(data: _data, cards: widget.cards);
+      w = CardWidget(data: _data, cards: widget.cards, cbs: widget.cbs);
     }
     return Center(child: w);
   }
 }
 
 class CardWidget extends StatefulWidget {
-  const CardWidget({Key? key, required this.data, required this.cards})
+  const CardWidget(
+      {Key? key, required this.data, required this.cards, required this.cbs})
       : super(key: key);
+
+  final ListPageCallbacks cbs;
 
   final ListPageData data;
   final List<Word> cards;

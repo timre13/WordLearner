@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:word_learner/main.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({Key? key, required this.cbs}) : super(key: key);
+
+  final SettingsPageCallbacks cbs;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -20,6 +23,8 @@ class _SettingsPageState extends State<SettingsPage>
 
     var fieldWidget =
         TextField(controller: TextEditingController(text: _textFieldVal));
+
+    // TODO: Option to hide notification bar
 
     return Center(
       child: Column(

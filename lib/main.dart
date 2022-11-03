@@ -43,6 +43,24 @@ class MainWidget extends StatefulWidget {
   State<MainWidget> createState() => _MainWidgetState();
 }
 
+class HomePageCallbacks {
+  final void Function(List<Word> newCards) setCardsCb;
+
+  HomePageCallbacks({required this.setCardsCb});
+}
+
+class ListPageCallbacks {
+  final void Function(int index) incCardPriorityCb;
+  final void Function(int index) decCardPriorityCb;
+
+  ListPageCallbacks(
+      {required this.incCardPriorityCb, required this.decCardPriorityCb});
+}
+
+class SettingsPageCallbacks {
+  SettingsPageCallbacks();
+}
+
 class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   //final _pageNames = const [
   //  "Home",
@@ -58,11 +76,9 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
   List<Word> _cards = [];
 
-  void setCards(List<Word> newCards) {
-    setState(() {
-      _cards = newCards;
-    });
-  }
+  late HomePageCallbacks _homePageCallbacks;
+  late ListPageCallbacks _listPageCallbacks;
+  late SettingsPageCallbacks _settingsPageCallbacks;
 
   late TabController _tabController;
 
@@ -73,6 +89,28 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
         length: _pageIcons.length,
         vsync: this,
         animationDuration: const Duration(milliseconds: 200));
+
+    _homePageCallbacks = HomePageCallbacks(
+        //
+        setCardsCb: (newCards) {
+      setState(() {
+        _cards = newCards;
+      });
+    });
+
+    _listPageCallbacks = ListPageCallbacks(
+        //
+        incCardPriorityCb: (index) {
+      setState(() {
+        _cards[index].incPriority();
+      });
+    }, decCardPriorityCb: (index) {
+      setState(() {
+        _cards[index].decPriority();
+      });
+    });
+
+    _settingsPageCallbacks = SettingsPageCallbacks();
   }
 
   @override
@@ -93,9 +131,9 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
             controller: _tabController,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              HomePage(setCardsCb: setCards),
-              ListPage(cards: _cards),
-              const SettingsPage(),
+              HomePage(cbs: _homePageCallbacks),
+              ListPage(cards: _cards, cbs: _listPageCallbacks),
+              SettingsPage(cbs: _settingsPageCallbacks),
             ],
           ),
         ));

@@ -3,17 +3,20 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
+const _INC_PRIO_VAL = 3;
+const _DEC_PRIO_VAL = 3;
+
 class Word {
   String side1;
   String side2;
   int _priority = 100;
 
   void incPriority() {
-    ++_priority;
+    _priority += _INC_PRIO_VAL;
   }
 
   void decPriority() {
-    --_priority;
+    _priority -= _DEC_PRIO_VAL;
   }
 
   int get priority => _priority;
