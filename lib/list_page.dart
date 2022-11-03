@@ -163,10 +163,14 @@ class _CardWidgetState extends State<CardWidget> {
                       getRandomWordI(widget.cards, widget.data.cardI!);
                   widget.data.isCardSide1 = true; // Flip back the card
                 });
+              } else if (widget.data.cardAction == CardAction.dontKnow) {
+                widget.cbs.incCardPriorityCb(widget.data.cardI!);
+                setState(() {
+                  widget.data.cardI =
+                      getRandomWordI(widget.cards, widget.data.cardI!);
+                  widget.data.isCardSide1 = true; // Flip back the card
+                });
               }
-              /* else if (_cardAction == CardAction.dontKnow) {
-                    _cards.elementAt(_cardI).incPriority();
-                  }*/
 
               setState(() {
                 widget.data.cardXDrag = 0;
