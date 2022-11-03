@@ -21,6 +21,11 @@ class Word {
 
   int get priority => _priority;
 
+  @override
+  String toString() {
+    return "Word('$side1', '$side2')";
+  }
+
   Word(this.side1, this.side2);
 }
 
@@ -50,6 +55,12 @@ List<Word> loadWordsOrThrow(String path) {
   }
 
   return words;
+}
+
+List<Word> wordListRemoveDups(List<Word> words) {
+  final ids = <int>{};
+  return List<Word>.from(words)
+    ..retainWhere((element) => ids.add(element.toString().hashCode));
 }
 
 int getRandomWordI(List<Word> words, [int lastVal = -1]) {

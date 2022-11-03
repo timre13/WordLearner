@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
                   if (value != null) {
                     List<Word> words = [];
                     try {
-                      words = loadWordsOrThrow(value);
+                      words = wordListRemoveDups(loadWordsOrThrow(value));
                     } on FormatException catch (e) {
                       _showErrorDialog("Failed to load wordlist", e.message);
                     } on FileSystemException catch (e) {
