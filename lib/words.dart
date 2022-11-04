@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 
 const _INC_PRIO_VAL = 3;
 const _DEC_PRIO_VAL = 3;
+import 'main.dart';
 
 class Word {
   String side1;
@@ -63,7 +64,7 @@ List<Word> wordListRemoveDups(List<Word> words) {
     ..retainWhere((element) => ids.add(element.toString().hashCode));
 }
 
-int getRandomWordI(List<Word> words, [int lastVal = -1]) {
+int _getRandomWordIWithPriority(List<Word> words, [int lastVal = -1]) {
   final sum = words.map((e) => e.priority).reduce((val, elem) => val + elem);
   int randomWeight = (Random().nextDouble() * sum).round();
 
@@ -75,6 +76,33 @@ int getRandomWordI(List<Word> words, [int lastVal = -1]) {
     }
   }
   // Retry
-  if (i == lastVal) return getRandomWordI(words, lastVal);
+  if (i == lastVal) return _getRandomWordIWithPriority(words, lastVal);
   return i;
+}
+
+int _getRandomWordI(List<Word> words, [int lastval = -1]) {
+  final random = (Random().nextDouble() * words.length).toInt();
+  if (random == lastval) {
+    return _getRandomWordI(words, lastval);
+  }
+  return random;
+}
+
+int _getNextWordIByOrder(List<Word> words, [int lastval = -1]) {
+  final val = lastval + 1;
+  if (val == words.length) return 0;
+  return val;
+}
+
+int getNextWordI(OrderMode orderMode, List<Word> words, [int lastval = -1]) {
+  assert(words.isNotEmpty);
+  if (words.length == 1) return 0;
+  switch (orderMode) {
+    case OrderMode.randomPrio:
+      return _getRandomWordIWithPriority(words, lastval);
+    case OrderMode.random:
+      return _getRandomWordI(words, lastval);
+    case OrderMode.original:
+      return _getNextWordIByOrder(words, lastval);
+  }
 }

@@ -61,7 +61,7 @@ class _ListPageState extends State<ListPage> {
     if (widget.cards.isEmpty) {
       w = const Text("No list open");
     } else {
-      _data.cardI ??= getRandomWordI(widget.cards);
+      _data.cardI ??= getNextWordI(widget.cbs.getOrderMode(), widget.cards);
       w = CardWidget(data: _data, cards: widget.cards, cbs: widget.cbs);
     }
     return Center(child: w);
@@ -159,15 +159,15 @@ class _CardWidgetState extends State<CardWidget> {
               if (widget.data.cardAction == CardAction.know) {
                 widget.cbs.decCardPriorityCb(widget.data.cardI!);
                 setState(() {
-                  widget.data.cardI =
-                      getRandomWordI(widget.cards, widget.data.cardI!);
+                  widget.data.cardI = getNextWordI(widget.cbs.getOrderMode(),
+                      widget.cards, widget.data.cardI!);
                   widget.data.isCardSide1 = true; // Flip back the card
                 });
               } else if (widget.data.cardAction == CardAction.dontKnow) {
                 widget.cbs.incCardPriorityCb(widget.data.cardI!);
                 setState(() {
-                  widget.data.cardI =
-                      getRandomWordI(widget.cards, widget.data.cardI!);
+                  widget.data.cardI = getNextWordI(widget.cbs.getOrderMode(),
+                      widget.cards, widget.data.cardI!);
                   widget.data.isCardSide1 = true; // Flip back the card
                 });
               }

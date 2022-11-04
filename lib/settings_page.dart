@@ -12,8 +12,6 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage>
     with AutomaticKeepAliveClientMixin<SettingsPage> {
-  final _textFieldVal = "Default Value";
-
   @override
   bool get wantKeepAlive => true;
 
@@ -21,21 +19,41 @@ class _SettingsPageState extends State<SettingsPage>
   Widget build(BuildContext context) {
     super.build(context);
 
-    var fieldWidget =
-        TextField(controller: TextEditingController(text: _textFieldVal));
-
     // TODO: Option to hide notification bar
 
-    return Center(
-      child: Column(
+    final rows = [
+      Row(
         children: [
-          const Text(
-            "Settings",
-            textScaleFactor: 2,
-          ),
-          fieldWidget,
+          const Text("Ordering: "),
+          DropdownButton(
+            style: const TextStyle(fontSize: 14),
+            items: OrderMode.values
+                .map((orderMode) => DropdownMenuItem(
+                    value: orderMode, child: Text(orderMode.toString())))
+                .toList(),
+            onChanged: (value) {
+              setState(() {
+                widget.cbs.setOrderMode(value as OrderMode);
+              });
+            },
+            value: widget.cbs.getOrderMode(),
+          )
         ],
-      ),
+      )
+    ];
+
+    return Center(
+      child: Padding(
+          padding: const EdgeInsets.only(left: 30, right: 30),
+          child: Column(
+            children: [
+              const Text(
+                "Settings",
+                textScaleFactor: 2,
+              ),
+              ...rows
+            ],
+          )),
     );
   }
 }

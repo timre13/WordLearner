@@ -43,6 +43,21 @@ class MainWidget extends StatefulWidget {
   State<MainWidget> createState() => _MainWidgetState();
 }
 
+enum OrderMode {
+  randomPrio,
+  random,
+  original;
+
+  @override
+  String toString() {
+    return [
+      "Random with priority",
+      "Random",
+      "Original",
+    ][index];
+  }
+}
+
 class HomePageCallbacks {
   final void Function(List<Word> newCards) setCardsCb;
 
@@ -52,13 +67,20 @@ class HomePageCallbacks {
 class ListPageCallbacks {
   final void Function(int index) incCardPriorityCb;
   final void Function(int index) decCardPriorityCb;
+  final OrderMode Function() getOrderMode;
 
   ListPageCallbacks(
-      {required this.incCardPriorityCb, required this.decCardPriorityCb});
+      {required this.incCardPriorityCb,
+      required this.decCardPriorityCb,
+      required this.getOrderMode});
 }
 
 class SettingsPageCallbacks {
-  SettingsPageCallbacks();
+  final OrderMode Function() getOrderMode;
+  final void Function(OrderMode mode) setOrderMode;
+
+  SettingsPageCallbacks(
+      {required this.getOrderMode, required this.setOrderMode});
 }
 
 class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
@@ -75,6 +97,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   ];
 
   List<Word> _cards = [];
+  OrderMode _orderMode = OrderMode.randomPrio;
 
   late HomePageCallbacks _homePageCallbacks;
   late ListPageCallbacks _listPageCallbacks;
@@ -91,26 +114,38 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
         animationDuration: const Duration(milliseconds: 200));
 
     _homePageCallbacks = HomePageCallbacks(
-        //
-        setCardsCb: (newCards) {
-      setState(() {
-        _cards = newCards;
-      });
-    });
+      //
+      setCardsCb: (newCards) {
+        setState(() {
+          _cards = newCards;
+        });
+      },
+    );
 
     _listPageCallbacks = ListPageCallbacks(
-        //
-        incCardPriorityCb: (index) {
-      setState(() {
-        _cards[index].incPriority();
-      });
-    }, decCardPriorityCb: (index) {
-      setState(() {
-        _cards[index].decPriority();
-      });
-    });
+      //
+      incCardPriorityCb: (index) {
+        setState(() {
+          _cards[index].incPriority();
+        });
+      },
+      decCardPriorityCb: (index) {
+        setState(() {
+          _cards[index].decPriority();
+        });
+      },
+      getOrderMode: () => _orderMode,
+    );
 
-    _settingsPageCallbacks = SettingsPageCallbacks();
+    _settingsPageCallbacks = SettingsPageCallbacks(
+      //
+      setOrderMode: (mode) {
+        setState(() {
+          _orderMode = mode;
+        });
+      },
+      getOrderMode: () => _orderMode,
+    );
   }
 
   @override
