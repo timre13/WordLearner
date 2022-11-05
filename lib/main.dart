@@ -121,6 +121,8 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
   late TabController _tabController;
 
+  double _topPadding = 0;
+
   @override
   void initState() {
     super.initState();
@@ -137,8 +139,19 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
     void updateNotifAndNavBar() {
       if (getHideNotifAndNavBar()) {
+        setState(() {
+          // If we hide the notification bar, the notch
+          // will cover some of the UI. We use padding on the home and settings
+          // pages. Here we get the necessary padding before hiding the
+          // notification bar.
+          _topPadding = WidgetsBinding.instance.window.padding.top /
+              WidgetsBinding.instance.window.devicePixelRatio;
+        });
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
       } else {
+        setState(() {
+          _topPadding = 0;
+        });
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
             overlays: SystemUiOverlay.values);
       }
@@ -223,9 +236,13 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
             controller: _tabController,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              HomePage(cbs: _homePageCallbacks),
+              Padding(
+                  padding: EdgeInsets.only(top: _topPadding),
+                  child: HomePage(cbs: _homePageCallbacks)),
               ListPage(cards: _cards, cbs: _listPageCallbacks),
-              SettingsPage(cbs: _settingsPageCallbacks),
+              Padding(
+                  padding: EdgeInsets.only(top: _topPadding),
+                  child: SettingsPage(cbs: _settingsPageCallbacks)),
             ],
           ),
         ));
