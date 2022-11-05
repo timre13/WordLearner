@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
@@ -11,7 +12,6 @@ void main() {
   // Don't close splash screen yet
   FlutterNativeSplash.preserve(
       widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
-
   runApp(const App());
 }
 
@@ -84,9 +84,19 @@ class ListPageCallbacks {
 class SettingsPageCallbacks {
   final OrderMode Function() getOrderMode;
   final void Function(OrderMode mode) setOrderMode;
+  final bool Function() getHideNotifAndNavBar;
+  final void Function(bool hide) setHideNotifAndNavBar;
 
   SettingsPageCallbacks(
-      {required this.getOrderMode, required this.setOrderMode});
+      {required this.getOrderMode,
+      required this.setOrderMode,
+      required this.getHideNotifAndNavBar,
+      required this.setHideNotifAndNavBar});
+}
+
+enum SettingKeys {
+  orderMode,
+  hideNotifAndNavBar,
 }
 
 class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
@@ -114,18 +124,31 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    SharedPreferences.getInstance().then((value) {
-      _prefs = value;
-      FlutterNativeSplash.remove();
-    });
-
     _tabController = TabController(
         length: _pageIcons.length,
         vsync: this,
         animationDuration: const Duration(milliseconds: 200));
 
     OrderMode getOrderMode() =>
-        OrderMode.values[(_prefs.getInt("orderMode") ?? 0)];
+        OrderMode.values[(_prefs.getInt(SettingKeys.orderMode.name) ?? 0)];
+
+    bool getHideNotifAndNavBar() =>
+        (_prefs.getBool(SettingKeys.hideNotifAndNavBar.name) ?? false);
+
+    void updateNotifAndNavBar() {
+      if (getHideNotifAndNavBar()) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      } else {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+            overlays: SystemUiOverlay.values);
+      }
+    }
+
+    SharedPreferences.getInstance().then((value) {
+      _prefs = value;
+      FlutterNativeSplash.remove();
+      updateNotifAndNavBar();
+    });
 
     _homePageCallbacks = HomePageCallbacks(
       //
@@ -156,10 +179,30 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       getOrderMode: getOrderMode,
       setOrderMode: (mode) {
         setState(() {
-          _prefs.setInt("orderMode", mode.index);
+          _prefs.setInt(SettingKeys.orderMode.name, mode.index);
+        });
+      },
+      getHideNotifAndNavBar: getHideNotifAndNavBar,
+      setHideNotifAndNavBar: (hide) {
+        setState(() {
+          _prefs.setBool(SettingKeys.hideNotifAndNavBar.name, hide);
+          updateNotifAndNavBar();
         });
       },
     );
+
+    // This is called when the navbar becomes visible.
+    // When the triggering condition no longer applies, the settings won't be
+    // restored, so we restore them manually.
+    SystemChrome.setSystemUIChangeCallback((systemOverlaysAreVisible) {
+      // Go back to fullscreen
+      // Note: from flutter docs: "the UI visibility cannot be changed until 1 second
+      //       after the keyboard is closed to prevent malware locking users
+      //       from navigation buttons"
+      return Future.delayed(const Duration(seconds: 1, milliseconds: 10), () {
+        SystemChrome.restoreSystemUIOverlays();
+      });
+    });
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:word_learner/main.dart';
 
@@ -38,6 +39,18 @@ class _SettingsPageState extends State<SettingsPage>
             },
             value: widget.cbs.getOrderMode(),
           )
+        ],
+      ),
+      Row(
+        children: [
+          const Text("Hide system UI: "),
+          CupertinoSwitch(
+              value: widget.cbs.getHideNotifAndNavBar(),
+              onChanged: (value) {
+                widget.cbs.setHideNotifAndNavBar(value);
+              },
+              trackColor: Colors.blueGrey.shade800,
+              activeColor: Colors.green.shade500)
         ],
       )
     ];
