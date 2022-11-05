@@ -28,6 +28,8 @@ class _SettingsPageState extends State<SettingsPage>
           const Text("Ordering: "),
           DropdownButton(
             style: const TextStyle(fontSize: 14),
+            iconEnabledColor: Colors.cyan,
+            underline: Container(height: 2, color: Colors.cyan.withAlpha(150)),
             items: OrderMode.values
                 .map((orderMode) => DropdownMenuItem(
                     value: orderMode, child: Text(orderMode.toString())))
@@ -50,7 +52,7 @@ class _SettingsPageState extends State<SettingsPage>
                 widget.cbs.setHideNotifAndNavBar(value);
               },
               trackColor: Colors.blueGrey.shade800,
-              activeColor: Colors.green.shade500)
+              activeColor: const Color(0xFF4CAF90))
         ],
       )
     ];

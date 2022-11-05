@@ -124,11 +124,11 @@ class _CardWidgetState extends State<CardWidget> {
                 // executed earlier than the GestureDetector's
                 onTap: () {
                   setState(() {
-                    widget.data.cardAnimDurMs = 200;
+                    widget.data.cardAnimDurMs = 100;
                     widget.data.isFlipping = true;
                   });
 
-                  Future.delayed(const Duration(milliseconds: 200), () {
+                  Future.delayed(const Duration(milliseconds: 100), () {
                     setState(() {
                       widget.data.isCardSide1 = !widget.data.isCardSide1;
                       widget.data.isFlipping = false;

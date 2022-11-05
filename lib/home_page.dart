@@ -45,6 +45,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    const divider = Divider(
+      height: 8,
+      thickness: 1,
+      indent: 10,
+      endIndent: 10,
+    );
+
     return Center(
       child: Column(
         children: [
@@ -79,6 +86,7 @@ class _HomePageState extends State<HomePage> {
               icon: Icons.file_download,
               label: "Export list...",
               onPressed: () {}),
+          divider,
           HomePageButton(
               icon: Icons.info,
               label: "About WordLearner...",
