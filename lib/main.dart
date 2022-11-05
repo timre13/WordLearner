@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'home_page.dart';
 import 'list_page.dart';
@@ -6,6 +8,10 @@ import 'settings_page.dart';
 import 'words.dart';
 
 void main() {
+  // Don't close splash screen yet
+  FlutterNativeSplash.preserve(
+      widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
+
   runApp(const App());
 }
 
@@ -96,8 +102,8 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
     Icons.settings,
   ];
 
+  late SharedPreferences _prefs;
   List<Word> _cards = [];
-  OrderMode _orderMode = OrderMode.randomPrio;
 
   late HomePageCallbacks _homePageCallbacks;
   late ListPageCallbacks _listPageCallbacks;
@@ -108,10 +114,18 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    SharedPreferences.getInstance().then((value) {
+      _prefs = value;
+      FlutterNativeSplash.remove();
+    });
+
     _tabController = TabController(
         length: _pageIcons.length,
         vsync: this,
         animationDuration: const Duration(milliseconds: 200));
+
+    OrderMode getOrderMode() =>
+        OrderMode.values[(_prefs.getInt("orderMode") ?? 0)];
 
     _homePageCallbacks = HomePageCallbacks(
       //
@@ -134,17 +148,17 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
           _cards[index].decPriority();
         });
       },
-      getOrderMode: () => _orderMode,
+      getOrderMode: getOrderMode,
     );
 
     _settingsPageCallbacks = SettingsPageCallbacks(
       //
+      getOrderMode: getOrderMode,
       setOrderMode: (mode) {
         setState(() {
-          _orderMode = mode;
+          _prefs.setInt("orderMode", mode.index);
         });
       },
-      getOrderMode: () => _orderMode,
     );
   }
 

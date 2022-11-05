@@ -33,7 +33,7 @@ class _SettingsPageState extends State<SettingsPage>
                 .toList(),
             onChanged: (value) {
               setState(() {
-                widget.cbs.setOrderMode(value as OrderMode);
+                widget.cbs.setOrderMode(value!);
               });
             },
             value: widget.cbs.getOrderMode(),
