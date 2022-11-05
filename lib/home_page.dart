@@ -30,17 +30,13 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  void _showInfoDialog(String title, String message) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            icon: const Icon(Icons.info),
-            iconColor: Colors.blue,
-          );
-        });
+  void _showInfoDialog(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message, style: const TextStyle(color: Colors.white)),
+      duration: const Duration(seconds: 3),
+      backgroundColor: Colors.blueGrey.shade900,
+      behavior: SnackBarBehavior.floating,
+    ));
   }
 
   @override
@@ -75,8 +71,7 @@ class _HomePageState extends State<HomePage> {
                       _showErrorDialog("Failed to load wordlist", e.message);
                     }
                     if (words.isNotEmpty) {
-                      _showInfoDialog("Loaded wordlist",
-                          "Loaded ${words.length} word pairs");
+                      _showInfoDialog("Loaded ${words.length} word pairs");
                     }
                     widget.cbs.setCardsCb(words);
                   }
