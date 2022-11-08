@@ -1,11 +1,16 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:word_learner/main.dart';
+import 'package:path/path.dart' as path_pkg;
 
+import 'common.dart';
 import 'words.dart';
+import 'export.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.cbs}) : super(key: key);
@@ -17,28 +22,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  void _showErrorDialog(String title, String message) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            icon: const Icon(Icons.error),
-            iconColor: Colors.red,
-          );
-        });
-  }
-
-  void _showInfoDialog(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message, style: const TextStyle(color: Colors.white)),
-      duration: const Duration(seconds: 3),
-      backgroundColor: Colors.blueGrey.shade900,
-      behavior: SnackBarBehavior.floating,
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     const divider = Divider(
@@ -66,21 +49,36 @@ class _HomePageState extends State<HomePage> {
                     try {
                       words = wordListRemoveDups(loadWordsOrThrow(value));
                     } on FormatException catch (e) {
-                      _showErrorDialog("Failed to load wordlist", e.message);
+                      showErrorDialog(
+                          context, "Failed to load wordlist", e.message);
                     } on FileSystemException catch (e) {
-                      _showErrorDialog("Failed to load wordlist", e.message);
+                      showErrorDialog(
+                          context, "Failed to load wordlist", e.message);
                     }
                     if (words.isNotEmpty) {
-                      _showInfoDialog("Loaded ${words.length} word pairs");
+                      showInfoSnackBar(
+                          context, "Loaded ${words.length} word pairs");
                     }
                     widget.cbs.setCardsCb(words);
                   }
                 });
               }),
           HomePageButton(
-              icon: Icons.file_download,
-              label: "Export list...",
-              onPressed: () {}),
+            icon: Icons.file_download,
+            label: "Export list...",
+            onPressed: () {
+              getExternalStorageDirectory().then((path) {
+                try {
+                  exportToPdf(context, widget.cbs.getCards(),
+                      path_pkg.join(path!.path, "words.pdf"));
+                } on FileSystemException catch (e) {
+                  if (kDebugMode) {
+                    print("Error: ${e.message}");
+                  }
+                }
+              });
+            },
+          ),
           divider,
           HomePageButton(
               icon: Icons.info,

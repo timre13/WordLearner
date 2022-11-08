@@ -66,8 +66,9 @@ enum OrderMode {
 
 class HomePageCallbacks {
   final void Function(List<Word> newCards) setCardsCb;
+  final List<Word> Function() getCards;
 
-  HomePageCallbacks({required this.setCardsCb});
+  HomePageCallbacks({required this.setCardsCb, required this.getCards});
 }
 
 class ListPageCallbacks {
@@ -170,6 +171,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
           _cards = newCards;
         });
       },
+      getCards: () => _cards,
     );
 
     _listPageCallbacks = ListPageCallbacks(

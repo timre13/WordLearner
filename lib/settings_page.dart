@@ -66,7 +66,8 @@ class _SettingsPageState extends State<SettingsPage>
                 "Settings",
                 textScaleFactor: 2,
               ),
-              ...rows
+              ...rows,
+              // TODO: Link to github repo and profile
             ],
           )),
     );

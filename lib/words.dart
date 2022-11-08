@@ -3,9 +3,10 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
-const _INC_PRIO_VAL = 3;
-const _DEC_PRIO_VAL = 3;
 import 'main.dart';
+
+const _INC_PRIO_VAL = 10;
+const _DEC_PRIO_VAL = 1;
 
 class Word {
   String side1;
