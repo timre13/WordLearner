@@ -10,7 +10,7 @@ import 'words.dart';
 
 void exportToPdf(BuildContext context, List<Word> words, String path) {
   var doc = pw.Document();
-  printing.PdfGoogleFonts.nunitoExtraLight().then((font) {
+  printing.PdfGoogleFonts.robotoRegular().then((font) {
     final textStyle = pw.TextStyle(font: font);
     doc.addPage(pw.MultiPage(
         pageFormat: PdfPageFormat.a5,
