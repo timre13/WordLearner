@@ -69,8 +69,11 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               getExternalStorageDirectory().then((path) {
                 try {
-                  exportToPdf(context, widget.cbs.getCards(),
-                      path_pkg.join(path!.path, "words.pdf"));
+                  exportToPdf(
+                      context,
+                      widget.cbs.getCards(),
+                      path_pkg.join(path!.path, "words.pdf"),
+                      ExportDocTheme.sepia);
                 } on FileSystemException catch (e) {
                   if (kDebugMode) {
                     print("Error: ${e.message}");

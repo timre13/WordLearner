@@ -8,22 +8,57 @@ import 'dart:io';
 
 import 'words.dart';
 
-void exportToPdf(BuildContext context, List<Word> words, String path) {
-  var doc = pw.Document();
+enum ExportDocTheme {
+  light,
+  sepia,
+  dark;
+
+  PdfColor getFgColor() {
+    return const [
+      PdfColors.black,
+      PdfColor.fromInt(0xff704214),
+      PdfColors.white
+    ][index];
+  }
+
+  PdfColor getBgColor() {
+    return const [
+      PdfColors.white,
+      PdfColor.fromInt(0xffeadbcb),
+      PdfColors.black
+    ][index];
+  }
+}
+
+void exportToPdf(
+    BuildContext context, List<Word> words, String path, ExportDocTheme theme) {
+  final fgColor = theme.getFgColor();
+  final bgColor = theme.getBgColor();
   printing.PdfGoogleFonts.robotoRegular().then((font) {
-    final textStyle = pw.TextStyle(font: font);
+    var doc = pw.Document();
+
+    final textStyle = pw.TextStyle(font: font, color: fgColor);
+    var pageTheme = pw.PageTheme(
+      pageFormat: PdfPageFormat.a5,
+      theme: pw.ThemeData(defaultTextStyle: textStyle),
+      buildBackground: (context) => pw.Container(
+        color: bgColor,
+      ),
+      margin: pw.EdgeInsets.zero,
+    );
+
     doc.addPage(pw.MultiPage(
-        pageFormat: PdfPageFormat.a5,
-        margin: const pw.EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        pageTheme: pageTheme,
         build: (context) {
           return [
-            pw.Table(
-                children: words
-                    .map((e) => pw.TableRow(children: [
-                          pw.Text(e.side1, style: textStyle),
-                          pw.Text(e.side2, style: textStyle)
-                        ]))
-                    .toList())
+            pw.Container(
+                margin:
+                    const pw.EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: pw.Table(
+                    children: words
+                        .map((e) => pw.TableRow(
+                            children: [pw.Text(e.side1), pw.Text(e.side2)]))
+                        .toList()))
           ];
         }));
     doc.save().then((content) =>
