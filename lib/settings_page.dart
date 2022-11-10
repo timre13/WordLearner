@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/cli_commands.dart';
+import 'package:word_learner/export.dart';
 import 'package:word_learner/main.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -54,7 +56,27 @@ class _SettingsPageState extends State<SettingsPage>
               trackColor: Colors.blueGrey.shade800,
               activeColor: const Color(0xFF4CAF90))
         ],
-      )
+      ),
+      Row(
+        children: [
+          const Text("Export theme: "),
+          DropdownButton(
+            style: const TextStyle(fontSize: 14),
+            iconEnabledColor: Colors.cyan,
+            underline: Container(height: 2, color: Colors.cyan.withAlpha(150)),
+            items: ExportDocTheme.values
+                .map((theme) => DropdownMenuItem(
+                    value: theme, child: Text(theme.name.capitalize())))
+                .toList(),
+            onChanged: (value) {
+              setState(() {
+                widget.cbs.setExportDocTheme(value!);
+              });
+            },
+            value: widget.cbs.getExportDocTheme(),
+          )
+        ],
+      ),
     ];
 
     return Center(

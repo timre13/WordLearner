@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
+import 'export.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 import 'settings_page.dart';
@@ -67,8 +68,13 @@ enum OrderMode {
 class HomePageCallbacks {
   final void Function(List<Word> newCards) setCardsCb;
   final List<Word> Function() getCards;
+  final ExportDocTheme Function() getExportDocTheme;
 
-  HomePageCallbacks({required this.setCardsCb, required this.getCards});
+  HomePageCallbacks({
+    required this.setCardsCb,
+    required this.getCards,
+    required this.getExportDocTheme,
+  });
 }
 
 class ListPageCallbacks {
@@ -76,28 +82,37 @@ class ListPageCallbacks {
   final void Function(int index) decCardPriorityCb;
   final OrderMode Function() getOrderMode;
 
-  ListPageCallbacks(
-      {required this.incCardPriorityCb,
-      required this.decCardPriorityCb,
-      required this.getOrderMode});
+  ListPageCallbacks({
+    required this.incCardPriorityCb,
+    required this.decCardPriorityCb,
+    required this.getOrderMode,
+  });
 }
 
 class SettingsPageCallbacks {
   final OrderMode Function() getOrderMode;
   final void Function(OrderMode mode) setOrderMode;
+
   final bool Function() getHideNotifAndNavBar;
   final void Function(bool hide) setHideNotifAndNavBar;
 
-  SettingsPageCallbacks(
-      {required this.getOrderMode,
-      required this.setOrderMode,
-      required this.getHideNotifAndNavBar,
-      required this.setHideNotifAndNavBar});
+  final ExportDocTheme Function() getExportDocTheme;
+  final Function(ExportDocTheme theme) setExportDocTheme;
+
+  SettingsPageCallbacks({
+    required this.getOrderMode,
+    required this.setOrderMode,
+    required this.getHideNotifAndNavBar,
+    required this.setHideNotifAndNavBar,
+    required this.getExportDocTheme,
+    required this.setExportDocTheme,
+  });
 }
 
 enum SettingKeys {
   orderMode,
   hideNotifAndNavBar,
+  exportDocTheme,
 }
 
 class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
@@ -138,6 +153,9 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
     bool getHideNotifAndNavBar() =>
         (_prefs.getBool(SettingKeys.hideNotifAndNavBar.name) ?? false);
 
+    ExportDocTheme getExportDocTheme() => ExportDocTheme
+        .values[(_prefs.getInt(SettingKeys.exportDocTheme.name) ?? 0)];
+
     void updateNotifAndNavBar() {
       if (getHideNotifAndNavBar()) {
         setState(() {
@@ -172,6 +190,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
         });
       },
       getCards: () => _cards,
+      getExportDocTheme: getExportDocTheme,
     );
 
     _listPageCallbacks = ListPageCallbacks(
@@ -190,21 +209,26 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
     );
 
     _settingsPageCallbacks = SettingsPageCallbacks(
-      //
-      getOrderMode: getOrderMode,
-      setOrderMode: (mode) {
-        setState(() {
-          _prefs.setInt(SettingKeys.orderMode.name, mode.index);
+        //
+        getOrderMode: getOrderMode,
+        setOrderMode: (mode) {
+          setState(() {
+            _prefs.setInt(SettingKeys.orderMode.name, mode.index);
+          });
+        },
+        getHideNotifAndNavBar: getHideNotifAndNavBar,
+        setHideNotifAndNavBar: (hide) {
+          setState(() {
+            _prefs.setBool(SettingKeys.hideNotifAndNavBar.name, hide);
+            updateNotifAndNavBar();
+          });
+        },
+        getExportDocTheme: getExportDocTheme,
+        setExportDocTheme: (theme) {
+          setState(() {
+            _prefs.setInt(SettingKeys.exportDocTheme.name, theme.index);
+          });
         });
-      },
-      getHideNotifAndNavBar: getHideNotifAndNavBar,
-      setHideNotifAndNavBar: (hide) {
-        setState(() {
-          _prefs.setBool(SettingKeys.hideNotifAndNavBar.name, hide);
-          updateNotifAndNavBar();
-        });
-      },
-    );
 
     // This is called when the navbar becomes visible.
     // When the triggering condition no longer applies, the settings won't be

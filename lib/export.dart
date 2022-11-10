@@ -17,7 +17,7 @@ enum ExportDocTheme {
     return const [
       PdfColors.black,
       PdfColor.fromInt(0xff704214),
-      PdfColors.white
+      PdfColor.fromInt(0xffdddddd)
     ][index];
   }
 
@@ -25,7 +25,7 @@ enum ExportDocTheme {
     return const [
       PdfColors.white,
       PdfColor.fromInt(0xffeadbcb),
-      PdfColors.black
+      PdfColor.fromInt(0xff262626)
     ][index];
   }
 }

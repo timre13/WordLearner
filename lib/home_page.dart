@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                       context,
                       widget.cbs.getCards(),
                       path_pkg.join(path!.path, "words.pdf"),
-                      ExportDocTheme.sepia);
+                      widget.cbs.getExportDocTheme());
                 } on FileSystemException catch (e) {
                   if (kDebugMode) {
                     print("Error: ${e.message}");
