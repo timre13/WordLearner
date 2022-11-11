@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:word_learner/main.dart';
 
+import 'word_list_widget.dart';
 import 'words.dart';
 
 class ListPage extends StatefulWidget {
@@ -61,8 +62,10 @@ class _ListPageState extends State<ListPage>
     if (widget.cards.isEmpty) {
       w = const Text("No list open");
     } else {
-      _data.cardI ??= getNextWordI(widget.cbs.getOrderMode(), widget.cards);
-      w = CardWidget(data: _data, cards: widget.cards, cbs: widget.cbs);
+      // TODO: Implement switching between view modes/make own page for both
+      //_data.cardI ??= getNextWordI(widget.cbs.getOrderMode(), widget.cards);
+      //w = CardWidget(data: _data, cards: widget.cards, cbs: widget.cbs);
+      w = WordListWidget(words: widget.cards);
     }
     return Center(child: w);
   }
