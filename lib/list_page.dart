@@ -42,7 +42,7 @@ class ListPageData {
   static const cardH = 500;
 }
 
-class _ListPageState extends State<ListPage> {
+class _ListPageState extends State<ListPage> with AutomaticKeepAliveClientMixin {
   final _data = ListPageData();
 
   @override
@@ -50,13 +50,12 @@ class _ListPageState extends State<ListPage> {
     super.initState();
   }
 
-  // TODO: Modes:
-  // - priority
-  // - randomized
-  // - original order
+  @override bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     Widget w;
     if (widget.cards.isEmpty) {
       w = const Text("No list open");
