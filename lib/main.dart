@@ -261,9 +261,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
                   padding: EdgeInsets.only(top: _topPadding),
                   child: HomePage(cbs: _homePageCallbacks)),
               CardPage(cards: _cards, cbs: _cardPageCallbacks),
-              Padding(
-                  padding: EdgeInsets.only(top: _topPadding),
-                  child: ListPage(cards: _cards)),
+              ListPage(cards: _cards),
               Padding(
                   padding: EdgeInsets.only(top: _topPadding),
                   child: SettingsPage(cbs: _settingsPageCallbacks)),
