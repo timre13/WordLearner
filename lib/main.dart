@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'card_page.dart';
 import 'export.dart';
 import 'home_page.dart';
 import 'list_page.dart';
@@ -77,12 +78,12 @@ class HomePageCallbacks {
   });
 }
 
-class ListPageCallbacks {
+class CardPageCallbacks {
   final void Function(int index) incCardPriorityCb;
   final void Function(int index) decCardPriorityCb;
   final OrderMode Function() getOrderMode;
 
-  ListPageCallbacks({
+  CardPageCallbacks({
     required this.incCardPriorityCb,
     required this.decCardPriorityCb,
     required this.getOrderMode,
@@ -116,14 +117,9 @@ enum SettingKeys {
 }
 
 class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
-  //final _pageNames = const [
-  //  "Home",
-  //  "List",
-  //  "Settings",
-  //];
-
   final _pageIcons = const [
     Icons.home,
+    Icons.crop_portrait_rounded,
     Icons.list,
     Icons.settings,
   ];
@@ -132,7 +128,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   List<Word> _cards = [];
 
   late HomePageCallbacks _homePageCallbacks;
-  late ListPageCallbacks _listPageCallbacks;
+  late CardPageCallbacks _cardPageCallbacks;
   late SettingsPageCallbacks _settingsPageCallbacks;
 
   late TabController _tabController;
@@ -193,7 +189,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       getExportDocTheme: getExportDocTheme,
     );
 
-    _listPageCallbacks = ListPageCallbacks(
+    _cardPageCallbacks = CardPageCallbacks(
       //
       incCardPriorityCb: (index) {
         setState(() {
@@ -252,7 +248,6 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
               .toList()
               .map((i) => Tab(
                     icon: Icon(_pageIcons[i], size: 40),
-                    //text: _pageNames[i],
                   ))
               .toList(),
           controller: _tabController,
@@ -265,7 +260,10 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
               Padding(
                   padding: EdgeInsets.only(top: _topPadding),
                   child: HomePage(cbs: _homePageCallbacks)),
-              ListPage(cards: _cards, cbs: _listPageCallbacks),
+              CardPage(cards: _cards, cbs: _cardPageCallbacks),
+              Padding(
+                  padding: EdgeInsets.only(top: _topPadding),
+                  child: ListPage(cards: _cards)),
               Padding(
                   padding: EdgeInsets.only(top: _topPadding),
                   child: SettingsPage(cbs: _settingsPageCallbacks)),

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:word_learner/words.dart';
 
-import 'list_page.dart';
+import 'card_page.dart';
 import 'main.dart';
 
 class CardWidget extends StatefulWidget {
@@ -11,9 +11,9 @@ class CardWidget extends StatefulWidget {
       {Key? key, required this.data, required this.cards, required this.cbs})
       : super(key: key);
 
-  final ListPageCallbacks cbs;
+  final CardPageCallbacks cbs;
 
-  final ListPageData data;
+  final CardPageData data;
   final List<Word> cards;
 
   @override
@@ -22,11 +22,11 @@ class CardWidget extends StatefulWidget {
 
 class _CardWidgetState extends State<CardWidget> {
   Matrix4 _calcDragTransfMat(double xDrag, double yDrag) {
-    return Matrix4.translationValues(ListPageData.cardW / 2 + xDrag,
-            ListPageData.cardH.toDouble() + yDrag / 4, 0) *
+    return Matrix4.translationValues(CardPageData.cardW / 2 + xDrag,
+            CardPageData.cardH.toDouble() + yDrag / 4, 0) *
         Matrix4.rotationZ(xDrag / 3000) *
         Matrix4.translationValues(
-            -ListPageData.cardW / 2, -ListPageData.cardH.toDouble(), 0) *
+            -CardPageData.cardW / 2, -CardPageData.cardH.toDouble(), 0) *
         Matrix4.rotationY(widget.data.isFlipping ? pi / 2 : 0);
   }
 
@@ -38,11 +38,11 @@ class _CardWidgetState extends State<CardWidget> {
         duration: Duration(milliseconds: widget.data.cardAnimDurMs),
         transform: _calcDragTransfMat(
             widget.data.cardXDrag * 1.2, widget.data.cardYDrag),
-        width: ListPageData.cardW.toDouble(),
-        height: ListPageData.cardH.toDouble(),
+        width: CardPageData.cardW.toDouble(),
+        height: CardPageData.cardH.toDouble(),
         child: Material(
           clipBehavior: Clip.antiAlias,
-          color: ListPageData.cardColors[widget.data.cardAction.index],
+          color: CardPageData.cardColors[widget.data.cardAction.index],
           borderRadius: const BorderRadiusDirectional.all(Radius.circular(20)),
           shadowColor: Colors.red,
           child: GestureDetector(
@@ -74,11 +74,11 @@ class _CardWidgetState extends State<CardWidget> {
                   });
                 }),
             onPanUpdate: (details) {
-              if (widget.data.cardXDrag > ListPageData.cardW / 8) {
+              if (widget.data.cardXDrag > CardPageData.cardW / 8) {
                 setState(() {
                   widget.data.cardAction = CardAction.know;
                 });
-              } else if (widget.data.cardXDrag < -ListPageData.cardW / 8) {
+              } else if (widget.data.cardXDrag < -CardPageData.cardW / 8) {
                 setState(() {
                   widget.data.cardAction = CardAction.dontKnow;
                 });
