@@ -56,6 +56,7 @@ class _CardWidgetState extends State<CardWidget> {
                         : widget.cards.elementAt(widget.data.cardI!).side2),
                     style:
                         const TextStyle(color: Color(0xffaaaaaa), fontSize: 30),
+                    textAlign: TextAlign.center,
                   ),
                 ),
                 // Note: Use the InkWell's `onTap()` because it seems to get
