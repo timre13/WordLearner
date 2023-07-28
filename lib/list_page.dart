@@ -53,8 +53,15 @@ class _ListPageState extends State<ListPage>
           (a, b) => a.side1.toLowerCase().compareTo(b.side1.toLowerCase()));
     }
 
+    var listWidget = WordListWidget(words: cards);
     return Scaffold(
       appBar: AppBar(
+        title: IconButton(
+          icon: const Icon(Icons.keyboard_double_arrow_up, color: Colors.grey),
+          onPressed: () {
+            listWidget.scrollToTop();
+          },
+        ),
         actions: _OrderMode.values
             .map((e) => IconButton(
                 icon: Icon(e.toButtonIcon(),
@@ -68,7 +75,7 @@ class _ListPageState extends State<ListPage>
             .toList(),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
-      body: WordListWidget(words: cards),
+      body: listWidget,
     );
   }
 }

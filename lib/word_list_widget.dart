@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:word_learner/words.dart';
 
 class WordListWidget extends StatefulWidget {
-  const WordListWidget({Key? key, required this.words}) : super(key: key);
+  WordListWidget({Key? key, required this.words}) : super(key: key);
 
   final List<Word> words;
+  final _scrollController = ScrollController();
+
+  void scrollToTop() {
+    _scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.fastOutSlowIn);
+  }
 
   @override
   State<WordListWidget> createState() => _WordListWidgetState();
@@ -14,6 +21,7 @@ class _WordListWidgetState extends State<WordListWidget> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+        controller: widget._scrollController,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
         separatorBuilder: (context, index) =>
