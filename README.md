@@ -1,16 +1,16 @@
 # word_learner
 
-Word Learner
+A flashcard app that can help you memorize words or other information.
 
-## Getting Started
+## Screenshots
 
-This project is a starting point for a Flutter application.
+![](screenshots/Screenshot_20230728_210451.png)
+![](screenshots/Screenshot_20230728_210626.png)
+![](screenshots/Screenshot_20230728_210651.png)
+![](screenshots/Screenshot_20230728_210705.png)
 
-A few resources to get you started if this is your first Flutter project:
+## Building
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Clone the repository and enter the directory
+2. Run `flutter build apk`
+3. The resulting APK will be at `build/app/outputs/flutter-apk/app-release.apk`
