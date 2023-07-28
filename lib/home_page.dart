@@ -67,6 +67,10 @@ class _HomePageState extends State<HomePage> {
             icon: Icons.file_download,
             label: "Export list...",
             onPressed: () {
+              if (widget.cbs.getCards().isEmpty) {
+                showErrorDialog(context, "Export error", "Word list is empty.");
+                return;
+              }
               getExternalStorageDirectory().then((path) {
                 try {
                   exportToPdf(
