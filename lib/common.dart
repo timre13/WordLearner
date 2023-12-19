@@ -34,3 +34,9 @@ void showInfoSnackBar(BuildContext context, String message) {
     behavior: SnackBarBehavior.floating,
   ));
 }
+
+extension StringExtensions on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1)}";
+  }
+}

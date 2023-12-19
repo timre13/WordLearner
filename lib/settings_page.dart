@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/cli_commands.dart';
+import 'package:word_learner/common.dart';
 import 'package:word_learner/export.dart';
 import 'package:word_learner/main.dart';
 
