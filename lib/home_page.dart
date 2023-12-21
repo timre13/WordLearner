@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:word_learner/main.dart';
 
@@ -31,7 +32,7 @@ class _HomePageState extends State<HomePage> {
           const Divider(),
           Expanded(
               child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Table(
                     children: const [
                           TableRow(children: [
@@ -46,18 +47,33 @@ class _HomePageState extends State<HomePage> {
                         ] +
                         widget.cbs
                             .getDecks()
-                            .map((deck) => TableRow(children: [
-                                  Text(deck.name),
-                                  Text(deck.description ?? ""),
-                                  Text(deck.cards?.length.toString() ?? "???",
-                                      textAlign: TextAlign.right),
-                                ]))
+                            .mapIndexed((i, deck) => TableRow(
+                                  decoration: BoxDecoration(
+                                      color: i == widget.cbs.getActiveDeckI()
+                                          ? Colors.grey.shade700
+                                          : Colors.transparent),
+                                  children: [
+                                    InkWell(
+                                      child: Text(deck.name,
+                                          style: const TextStyle(
+                                              decoration:
+                                                  TextDecoration.underline)),
+                                      onTapDown: (_) {
+                                        widget.cbs.setActiveDeckI(i);
+                                      },
+                                    ),
+                                    Text(deck.description ?? ""),
+                                    Text(deck.cards?.length.toString() ?? "???",
+                                        textAlign: TextAlign.right),
+                                  ],
+                                ))
                             .toList(growable: false),
                     columnWidths: const {
                       0: FractionColumnWidth(0.30),
                       1: FractionColumnWidth(0.55),
                       2: FractionColumnWidth(0.15)
                     },
+                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                   ))),
         ],
       ),

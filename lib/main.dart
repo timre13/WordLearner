@@ -81,13 +81,18 @@ class HomePageCallbacks {
   final void Function(List<Word> newCards) setCardsCb;
   final List<Word> Function() getCards;
   final ExportDocTheme Function() getExportDocTheme;
+
   final List<Deck> Function() getDecks;
+  final void Function(int) setActiveDeckI;
+  final int Function() getActiveDeckI;
 
   HomePageCallbacks({
     required this.setCardsCb,
     required this.getCards,
     required this.getExportDocTheme,
     required this.getDecks,
+    required this.setActiveDeckI,
+    required this.getActiveDeckI,
   });
 }
 
@@ -141,6 +146,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   List<Word> _cards = [];
   late Future<void> _decksFuture;
   List<Deck>? _decks;
+  int _activeDeckI = -1;
 
   late HomePageCallbacks _homePageCallbacks;
   late CardPageCallbacks _cardPageCallbacks;
@@ -217,6 +223,12 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       getCards: () => _cards,
       getExportDocTheme: getExportDocTheme,
       getDecks: () => _decks ?? [],
+      setActiveDeckI: (val) {
+        setState(() {
+          _activeDeckI = val;
+        });
+      },
+      getActiveDeckI: () => _activeDeckI,
     );
 
     _cardPageCallbacks = CardPageCallbacks(
