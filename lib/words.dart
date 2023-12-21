@@ -28,7 +28,9 @@ class Word {
     return "Word('$side1', '$side2')";
   }
 
-  Word(this.side1, this.side2);
+  Word(this.side1, this.side2, [int? priority]) {
+    _priority = priority ?? 0;
+  }
 }
 
 List<Word> loadWordsOrThrow(String path) {

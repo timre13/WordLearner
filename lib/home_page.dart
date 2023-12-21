@@ -1,19 +1,8 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path/path.dart' as path_pkg;
-import 'package:path_provider/path_provider.dart';
 import 'package:word_learner/main.dart';
 
-import 'common.dart';
-import 'export.dart';
-import 'words.dart';
-
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.cbs}) : super(key: key);
+  const HomePage({super.key, required this.cbs});
 
   final HomePageCallbacks cbs;
 
@@ -38,69 +27,38 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.only(bottom: 10),
               child: Text("Word Learner", textScaleFactor: 2)),
           HomePageButton(
-              icon: Icons.file_open,
-              label: "Open list...",
-              onPressed: () {
-                const params = OpenFileDialogParams(
-                    dialogType: OpenFileDialogType.document);
-                FlutterFileDialog.pickFile(params: params).then((value) {
-                  if (value != null) {
-                    List<Word> words = [];
-                    try {
-                      words = wordListRemoveDups(loadWordsOrThrow(value));
-                    } on FormatException catch (e) {
-                      showErrorDialog(
-                          context, "Failed to load wordlist", e.message);
-                    } on FileSystemException catch (e) {
-                      showErrorDialog(
-                          context, "Failed to load wordlist", e.message);
-                    }
-                    if (words.isNotEmpty) {
-                      showInfoSnackBar(
-                          context, "Loaded ${words.length} word pairs");
-                    }
-                    widget.cbs.setCardsCb(words);
-                  }
-                });
-              }),
-          HomePageButton(
-            icon: Icons.file_download,
-            label: "Export list...",
-            onPressed: () {
-              if (widget.cbs.getCards().isEmpty) {
-                showErrorDialog(context, "Export error", "Word list is empty.");
-                return;
-              }
-              getExternalStorageDirectory().then((path) {
-                try {
-                  exportToPdf(
-                      context,
-                      widget.cbs.getCards(),
-                      path_pkg.join(path!.path, "words.pdf"),
-                      widget.cbs.getExportDocTheme());
-                } on FileSystemException catch (e) {
-                  if (kDebugMode) {
-                    print("Error: ${e.message}");
-                  }
-                }
-              });
-            },
-          ),
-          divider,
-          HomePageButton(
-              icon: Icons.info,
-              label: "About WordLearner...",
-              onPressed: () {
-                WidgetsFlutterBinding.ensureInitialized();
-                PackageInfo.fromPlatform().then((pkgInfo) {
-                  showAboutDialog(
-                      context: context,
-                      applicationName: pkgInfo.appName,
-                      applicationVersion: "${pkgInfo.packageName}"
-                          "\n\nVersion: ${pkgInfo.version}"
-                          "\nBuild number: ${pkgInfo.buildNumber}");
-                });
-              }),
+              icon: Icons.file_open, label: "Create list...", onPressed: () {}),
+          const Divider(),
+          Expanded(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Table(
+                    children: const [
+                          TableRow(children: [
+                            Text("Name",
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text("Description",
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            Text("Cards",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.right)
+                          ])
+                        ] +
+                        widget.cbs
+                            .getDecks()
+                            .map((deck) => TableRow(children: [
+                                  Text(deck.name),
+                                  Text(deck.description ?? ""),
+                                  Text(deck.cards?.length.toString() ?? "???",
+                                      textAlign: TextAlign.right),
+                                ]))
+                            .toList(growable: false),
+                    columnWidths: const {
+                      0: FractionColumnWidth(0.30),
+                      1: FractionColumnWidth(0.55),
+                      2: FractionColumnWidth(0.15)
+                    },
+                  ))),
         ],
       ),
     );
@@ -109,11 +67,10 @@ class _HomePageState extends State<HomePage> {
 
 class HomePageButton extends StatelessWidget {
   const HomePageButton(
-      {Key? key,
+      {super.key,
       required this.icon,
       required this.label,
-      required this.onPressed})
-      : super(key: key);
+      required this.onPressed});
 
   final IconData icon;
   final String label;
@@ -122,10 +79,15 @@ class HomePageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
+      style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith(
+              (states) => const Color.fromRGBO(255, 255, 255, 0.1))),
       onPressed: onPressed,
       child: Row(children: [
-        Icon(icon),
-        Padding(padding: const EdgeInsets.only(left: 10), child: Text(label)),
+        Icon(icon, color: Colors.white),
+        Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: Text(label, style: const TextStyle(color: Colors.white))),
       ]),
     );
   }

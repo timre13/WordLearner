@@ -44,6 +44,8 @@ dependencies:
   path: ^1.8.2
   pdf: ^3.8.4
   printing: ^5.10.4
+  sqlite3: ^2.2.0
+  sqlite3_flutter_libs: ^0.5.18
 
 dev_dependencies:
   flutter_test:
