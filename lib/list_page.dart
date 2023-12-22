@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:word_learner/words.dart';
+import 'package:word_learner/main.dart';
 
 import 'word_list_widget.dart';
 
 class ListPage extends StatefulWidget {
-  const ListPage({Key? key, required this.cards}) : super(key: key);
+  const ListPage({super.key, required this.cbs});
 
-  final List<Word> cards;
+  final ListPageCallbacks cbs;
 
   @override
   State<ListPage> createState() => _ListPageState();
@@ -41,11 +41,11 @@ class _ListPageState extends State<ListPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (widget.cards.isEmpty) {
+    if (widget.cbs.getActiveDeck() == null) {
       return const Center(child: Text("No list open"));
     }
 
-    var cards = widget.cards.toList();
+    var cards = [...widget.cbs.getActiveDeck()!.cards!];
     if (orderMode == _OrderMode.shuffled) {
       cards.shuffle();
     } else if (orderMode == _OrderMode.alphabet) {

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path_pkg;
@@ -58,17 +60,24 @@ class Database {
     """)
       ..execute([1234, "Deck #1", "Foo"])
       ..execute([5678, "Deck #2", "Bar"])
+      ..execute([6245, "Deck #3", "Baz"])
       ..dispose();
 
-    _db.prepare("""
+    var stmt = _db.prepare("""
       INSERT INTO cards (deckId, frontSideText, backSideText, dateCreated)
       VALUES (?, ?, ?, ?)
-    """)
-      ..execute([1, "Card #1.1 A", "Card #1.1 B", 1234])
-      ..execute([1, "Card #1.2 A", "Card #1.2 B", 4322])
-      ..execute([2, "Card #2.1 A", "Card #2.1 B", 7225])
-      ..execute([2, "Card #2.2 A", "Card #2.2 B", 5423])
-      ..dispose();
+    """);
+    var rand = Random();
+    for (var i = 0; i < 500; ++i) {
+      final deck = rand.nextInt(4);
+      stmt.execute([
+        deck,
+        "Card #$deck-${i + 1}A",
+        "Card #$deck-${i + 1}B",
+        rand.nextInt(1000)
+      ]);
+    }
+    stmt.dispose();
   }
 
   void reset() {

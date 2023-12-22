@@ -108,6 +108,12 @@ class CardPageCallbacks {
   });
 }
 
+class ListPageCallbacks {
+  final Deck? Function() getActiveDeck;
+
+  ListPageCallbacks({required this.getActiveDeck});
+}
+
 class SettingsPageCallbacks {
   final OrderMode Function() getOrderMode;
   final void Function(OrderMode mode) setOrderMode;
@@ -150,6 +156,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
   late HomePageCallbacks _homePageCallbacks;
   late CardPageCallbacks _cardPageCallbacks;
+  late ListPageCallbacks _listPageCallbacks;
   late SettingsPageCallbacks _settingsPageCallbacks;
 
   late TabController _tabController;
@@ -246,6 +253,15 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       getOrderMode: getOrderMode,
     );
 
+    _listPageCallbacks = ListPageCallbacks(
+      //
+      getActiveDeck: () {
+        if (_decks == null) return null;
+        if (_activeDeckI < 0 || _activeDeckI >= _decks!.length) return null;
+        return _decks![_activeDeckI];
+      },
+    );
+
     _settingsPageCallbacks = SettingsPageCallbacks(
         //
         getOrderMode: getOrderMode,
@@ -319,7 +335,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
                         padding: EdgeInsets.only(top: _topPadding),
                         child: HomePage(cbs: _homePageCallbacks)),
                     CardPage(cards: _cards, cbs: _cardPageCallbacks),
-                    ListPage(cards: _cards),
+                    ListPage(cbs: _listPageCallbacks),
                     Padding(
                         padding: EdgeInsets.only(top: _topPadding),
                         child: SettingsPage(cbs: _settingsPageCallbacks)),
