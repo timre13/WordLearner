@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:word_learner/main.dart';
 
 import 'card_widget.dart';
+import 'deck.dart';
 import 'words.dart';
 
 class CardPage extends StatefulWidget {
@@ -27,6 +29,7 @@ class CardPageData {
   ];
 
   int? cardI;
+  Deck? lastUsedDeck;
   var isCardSide1 = true;
   double cardXDrag = 0.0;
   double cardYDrag = 0.0;
@@ -54,13 +57,22 @@ class _CardPageState extends State<CardPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    var deck = widget.cbs.getActiveDeck();
 
     Widget w;
-    if (widget.cbs.getActiveDeck() == null) {
+    if (deck == null) {
       w = const Text("No list open");
+      _data.cardI = null;
     } else {
-      _data.cardI ??= getNextWordI(
-          widget.cbs.getOrderMode(), widget.cbs.getActiveDeck()!.cards!);
+      if (_data.lastUsedDeck != deck) {
+        _data.cardI = null;
+        _data.lastUsedDeck = deck;
+        if (kDebugMode) {
+          print("Deck was switched, resetting card index");
+        }
+      }
+
+      _data.cardI ??= getNextWordI(widget.cbs.getOrderMode(), deck.cards!);
       w = CardWidget(data: _data, cbs: widget.cbs);
     }
     return Center(child: w);
