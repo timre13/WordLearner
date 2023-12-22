@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -41,22 +44,79 @@ class App extends StatelessWidget {
           indicator: BoxDecoration(),
         ),
       ),
-      home: const MainWidget(),
+      home: const WrapperWidget(),
     );
   }
 }
 
-class LoadingWidget extends StatelessWidget {
-  const LoadingWidget({super.key});
+class WrapperWidget extends StatefulWidget {
+  const WrapperWidget({super.key});
+
+  @override
+  State<WrapperWidget> createState() => _WrapperWidgetState();
+}
+
+class _WrapperWidgetState extends State<WrapperWidget> {
+  late Future<List<Deck>> _decksFuture;
+
+  Future<List<Deck>> loadDecks() async {
+    var db = await Database.create();
+    db.reset();
+    List<Deck> decks = db.loadDecks();
+    for (final deck in decks) {
+      if (kDebugMode) {
+        print("--- Deck: ${deck.name} ---");
+      }
+      db.loadCardsOfDeck(deck);
+      for (final card in deck.cards!) {
+        if (kDebugMode) {
+          print("Card: ${card.side1} / ${card.side2}");
+        }
+      }
+    }
+    return decks;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _decksFuture = loadDecks();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return FutureBuilder(
+        future: _decksFuture,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Material(
+                child: Center(child: Text("Error: ${snapshot.error}")));
+          }
+
+          if (!snapshot.hasData) {
+            return Material(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: Center(
+                    child: SizedBox.fromSize(
+                        size: const Size.square(300),
+                        child: CircularProgressIndicator(
+                            backgroundColor: Theme.of(context)
+                                .tabBarTheme
+                                .unselectedLabelColor,
+                            color: Theme.of(context).colorScheme.secondary,
+                            strokeWidth: 8))));
+          }
+
+          return MainWidget(decks: snapshot.data!);
+        });
   }
 }
 
 class MainWidget extends StatefulWidget {
-  const MainWidget({super.key});
+  const MainWidget({super.key, required this.decks});
+
+  final List<Deck> decks;
 
   @override
   State<MainWidget> createState() => _MainWidgetState();
@@ -150,8 +210,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
   late SharedPreferences _prefs;
   List<Word> _cards = [];
-  late Future<void> _decksFuture;
-  List<Deck>? _decks;
+  late List<Deck> _decks;
   int _activeDeckI = -1;
 
   late HomePageCallbacks _homePageCallbacks;
@@ -166,6 +225,9 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    _decks = widget.decks;
+
     _tabController = TabController(
         length: _pageIcons.length,
         vsync: this,
@@ -206,20 +268,6 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       updateNotifAndNavBar();
     });
 
-    _decksFuture = () async {
-      var db = await Database.create();
-      db.reset();
-      List<Deck> decks = db.loadDecks();
-      for (final deck in decks) {
-        print("--- Deck: ${deck.name} ---");
-        db.loadCardsOfDeck(deck);
-        for (final card in deck.cards!) {
-          print("Card: ${card.side1} / ${card.side2}");
-        }
-      }
-      _decks = decks;
-    }();
-
     _homePageCallbacks = HomePageCallbacks(
       //
       setCardsCb: (newCards) {
@@ -229,7 +277,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       },
       getCards: () => _cards,
       getExportDocTheme: getExportDocTheme,
-      getDecks: () => _decks ?? [],
+      getDecks: () => _decks,
       setActiveDeckI: (val) {
         setState(() {
           _activeDeckI = val;
@@ -256,9 +304,8 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
     _listPageCallbacks = ListPageCallbacks(
       //
       getActiveDeck: () {
-        if (_decks == null) return null;
-        if (_activeDeckI < 0 || _activeDeckI >= _decks!.length) return null;
-        return _decks![_activeDeckI];
+        if (_activeDeckI < 0 || _activeDeckI >= _decks.length) return null;
+        return _decks[_activeDeckI];
       },
     );
 
@@ -300,48 +347,31 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _decksFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return Material(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                child: Center(
-                    child: SizedBox.fromSize(
-                        size: const Size.square(300),
-                        child: CircularProgressIndicator(
-                            backgroundColor: Theme.of(context)
-                                .tabBarTheme
-                                .unselectedLabelColor,
-                            color: Theme.of(context).colorScheme.secondary,
-                            strokeWidth: 8))));
-          }
-          return Scaffold(
-              bottomNavigationBar: TabBar(
-                tabs: Iterable.generate(_pageIcons.length)
-                    .toList()
-                    .map((i) => Tab(
-                          icon: Icon(_pageIcons[i], size: 40),
-                        ))
-                    .toList(),
-                controller: _tabController,
-              ),
-              body: SafeArea(
-                child: TabBarView(
-                  controller: _tabController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    Padding(
-                        padding: EdgeInsets.only(top: _topPadding),
-                        child: HomePage(cbs: _homePageCallbacks)),
-                    CardPage(cards: _cards, cbs: _cardPageCallbacks),
-                    ListPage(cbs: _listPageCallbacks),
-                    Padding(
-                        padding: EdgeInsets.only(top: _topPadding),
-                        child: SettingsPage(cbs: _settingsPageCallbacks)),
-                  ],
-                ),
-              ));
-        });
+    return Scaffold(
+        bottomNavigationBar: TabBar(
+          tabs: Iterable.generate(_pageIcons.length)
+              .toList()
+              .map((i) => Tab(
+                    icon: Icon(_pageIcons[i], size: 40),
+                  ))
+              .toList(),
+          controller: _tabController,
+        ),
+        body: SafeArea(
+          child: TabBarView(
+            controller: _tabController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              Padding(
+                  padding: EdgeInsets.only(top: _topPadding),
+                  child: HomePage(cbs: _homePageCallbacks)),
+              CardPage(cards: _cards, cbs: _cardPageCallbacks),
+              ListPage(cbs: _listPageCallbacks),
+              Padding(
+                  padding: EdgeInsets.only(top: _topPadding),
+                  child: SettingsPage(cbs: _settingsPageCallbacks)),
+            ],
+          ),
+        ));
   }
 }

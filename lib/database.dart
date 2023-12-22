@@ -1,7 +1,7 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as path_pkg;
 import 'package:path_provider/path_provider.dart';
 import "package:sqlite3/sqlite3.dart" as sqlite;
@@ -15,6 +15,10 @@ class Database {
   Database._createUninited();
 
   static Future<Database> create() async {
+    if (kDebugMode) {
+      print("Opening database");
+    }
+
     var result = Database._createUninited();
 
     WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +32,7 @@ class Database {
     return result;
   }
 
-  void _initScheme() {
+  void _initScheme() async {
     if (kDebugMode) {
       print("Initializing database");
     }
@@ -68,7 +72,7 @@ class Database {
       VALUES (?, ?, ?, ?)
     """);
     var rand = Random();
-    for (var i = 0; i < 500; ++i) {
+    for (var i = 0; i < 100; ++i) {
       final deck = rand.nextInt(4);
       stmt.execute([
         deck,
@@ -78,6 +82,10 @@ class Database {
       ]);
     }
     stmt.dispose();
+
+    if (kDebugMode) {
+      print("Initialized database");
+    }
   }
 
   void reset() {
@@ -87,6 +95,10 @@ class Database {
 
     _db.execute("DROP TABLE IF EXISTS decks");
     _db.execute("DROP TABLE IF EXISTS cards");
+    if (kDebugMode) {
+      print("Cleared database");
+    }
+
     _initScheme();
   }
 
@@ -98,6 +110,10 @@ class Database {
   }
 
   List<Deck> loadDecks() {
+    if (kDebugMode) {
+      print("Loading decks");
+    }
+
     sqlite.ResultSet queryResult;
     {
       var query =
@@ -106,7 +122,7 @@ class Database {
       query.dispose();
     }
 
-    return queryResult
+    var result = queryResult
         .map(
           (row) => Deck(
               dbId: row["id"],
@@ -116,9 +132,18 @@ class Database {
               description: row["description"] as String?),
         )
         .toList(growable: false);
+
+    if (kDebugMode) {
+      print("Loaded decks");
+    }
+    return result;
   }
 
-  void loadCardsOfDeck(Deck deck) {
+  Future<void> loadCardsOfDeck(Deck deck) async {
+    if (kDebugMode) {
+      print("Loading cards of deck (id=${deck.dbId}, name=${deck.name})");
+    }
+
     sqlite.ResultSet queryResults;
     {
       var query = _db.prepare("""
@@ -136,15 +161,28 @@ class Database {
         row["priority"] as int?,
       ));
     }
+
+    if (kDebugMode) {
+      print("Loaded cards of deck");
+    }
   }
 
   int getDeckCardCount(int deckId) {
+    if (kDebugMode) {
+      print("Getting card count for deck (id=$deckId)");
+    }
+
     var query = _db.prepare("""
         SELECT COUNT(id) AS count FROM cards
         WHERE deckId = ?
       """);
     sqlite.ResultSet queryResults = query.select([deckId]);
     query.dispose();
-    return queryResults[0]["count"];
+    var result = queryResults[0]["count"];
+
+    if (kDebugMode) {
+      print("Got card count for deck");
+    }
+    return result;
   }
 }
