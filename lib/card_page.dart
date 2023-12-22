@@ -5,12 +5,9 @@ import 'card_widget.dart';
 import 'words.dart';
 
 class CardPage extends StatefulWidget {
-  const CardPage({Key? key, required this.cards, required this.cbs})
-      : super(key: key);
+  const CardPage({super.key, required this.cbs});
 
   final CardPageCallbacks cbs;
-
-  final List<Word> cards;
 
   @override
   State<CardPage> createState() => _CardPageState();
@@ -59,11 +56,12 @@ class _CardPageState extends State<CardPage>
     super.build(context);
 
     Widget w;
-    if (widget.cards.isEmpty) {
+    if (widget.cbs.getActiveDeck() == null) {
       w = const Text("No list open");
     } else {
-      _data.cardI ??= getNextWordI(widget.cbs.getOrderMode(), widget.cards);
-      w = CardWidget(data: _data, cards: widget.cards, cbs: widget.cbs);
+      _data.cardI ??= getNextWordI(
+          widget.cbs.getOrderMode(), widget.cbs.getActiveDeck()!.cards!);
+      w = CardWidget(data: _data, cbs: widget.cbs);
     }
     return Center(child: w);
   }

@@ -13,7 +13,6 @@ import 'export.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 import 'settings_page.dart';
-import 'words.dart';
 
 void main() {
   // Don't close splash screen yet
@@ -138,8 +137,6 @@ enum OrderMode {
 }
 
 class HomePageCallbacks {
-  final void Function(List<Word> newCards) setCardsCb;
-  final List<Word> Function() getCards;
   final ExportDocTheme Function() getExportDocTheme;
 
   final List<Deck> Function() getDecks;
@@ -147,8 +144,6 @@ class HomePageCallbacks {
   final int Function() getActiveDeckI;
 
   HomePageCallbacks({
-    required this.setCardsCb,
-    required this.getCards,
     required this.getExportDocTheme,
     required this.getDecks,
     required this.setActiveDeckI,
@@ -157,11 +152,13 @@ class HomePageCallbacks {
 }
 
 class CardPageCallbacks {
+  final Deck? Function() getActiveDeck;
   final void Function(int index) incCardPriorityCb;
   final void Function(int index) decCardPriorityCb;
   final OrderMode Function() getOrderMode;
 
   CardPageCallbacks({
+    required this.getActiveDeck,
     required this.incCardPriorityCb,
     required this.decCardPriorityCb,
     required this.getOrderMode,
@@ -209,7 +206,6 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   ];
 
   late SharedPreferences _prefs;
-  List<Word> _cards = [];
   late List<Deck> _decks;
   int _activeDeckI = -1;
 
@@ -270,12 +266,6 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
     _homePageCallbacks = HomePageCallbacks(
       //
-      setCardsCb: (newCards) {
-        setState(() {
-          _cards = newCards;
-        });
-      },
-      getCards: () => _cards,
       getExportDocTheme: getExportDocTheme,
       getDecks: () => _decks,
       setActiveDeckI: (val) {
@@ -288,14 +278,20 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
     _cardPageCallbacks = CardPageCallbacks(
       //
+      getActiveDeck: () {
+        if (_activeDeckI < 0 || _activeDeckI >= _decks.length) return null;
+        return _decks[_activeDeckI];
+      },
       incCardPriorityCb: (index) {
         setState(() {
-          _cards[index].incPriority();
+          // TODO
+          //_cards[index].incPriority();
         });
       },
       decCardPriorityCb: (index) {
         setState(() {
-          _cards[index].decPriority();
+          // TODO
+          //_cards[index].decPriority();
         });
       },
       getOrderMode: getOrderMode,
@@ -365,7 +361,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
               Padding(
                   padding: EdgeInsets.only(top: _topPadding),
                   child: HomePage(cbs: _homePageCallbacks)),
-              CardPage(cards: _cards, cbs: _cardPageCallbacks),
+              CardPage(cbs: _cardPageCallbacks),
               ListPage(cbs: _listPageCallbacks),
               Padding(
                   padding: EdgeInsets.only(top: _topPadding),

@@ -11,7 +11,7 @@ const _DEC_PRIO_VAL = 1;
 class Word {
   String side1;
   String side2;
-  int _priority = 100;
+  int _priority;
 
   void incPriority() {
     _priority += _INC_PRIO_VAL;
@@ -28,9 +28,7 @@ class Word {
     return "Word('$side1', '$side2')";
   }
 
-  Word(this.side1, this.side2, [int? priority]) {
-    _priority = priority ?? 0;
-  }
+  Word(this.side1, this.side2, [int? priority]) : _priority = priority ?? 100;
 }
 
 List<Word> loadWordsOrThrow(String path) {

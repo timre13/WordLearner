@@ -7,14 +7,12 @@ import 'card_page.dart';
 import 'main.dart';
 
 class CardWidget extends StatefulWidget {
-  const CardWidget(
-      {Key? key, required this.data, required this.cards, required this.cbs})
+  const CardWidget({Key? key, required this.data, required this.cbs})
       : super(key: key);
 
   final CardPageCallbacks cbs;
 
   final CardPageData data;
-  final List<Word> cards;
 
   @override
   State<CardWidget> createState() => _CardWidgetState();
@@ -52,8 +50,16 @@ class _CardWidgetState extends State<CardWidget> {
                 child: Center(
                   child: Text(
                     (widget.data.isCardSide1
-                        ? widget.cards.elementAt(widget.data.cardI!).side1
-                        : widget.cards.elementAt(widget.data.cardI!).side2),
+                        ? widget.cbs
+                            .getActiveDeck()!
+                            .cards!
+                            .elementAt(widget.data.cardI!)
+                            .side1
+                        : widget.cbs
+                            .getActiveDeck()!
+                            .cards!
+                            .elementAt(widget.data.cardI!)
+                            .side2),
                     style:
                         const TextStyle(color: Color(0xffaaaaaa), fontSize: 30),
                     textAlign: TextAlign.center,
@@ -99,14 +105,14 @@ class _CardWidgetState extends State<CardWidget> {
                 widget.cbs.decCardPriorityCb(widget.data.cardI!);
                 setState(() {
                   widget.data.cardI = getNextWordI(widget.cbs.getOrderMode(),
-                      widget.cards, widget.data.cardI!);
+                      widget.cbs.getActiveDeck()!.cards!, widget.data.cardI!);
                   widget.data.isCardSide1 = true; // Flip back the card
                 });
               } else if (widget.data.cardAction == CardAction.dontKnow) {
                 widget.cbs.incCardPriorityCb(widget.data.cardI!);
                 setState(() {
                   widget.data.cardI = getNextWordI(widget.cbs.getOrderMode(),
-                      widget.cards, widget.data.cardI!);
+                      widget.cbs.getActiveDeck()!.cards!, widget.data.cardI!);
                   widget.data.isCardSide1 = true; // Flip back the card
                 });
               }
