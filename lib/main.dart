@@ -229,6 +229,10 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
         vsync: this,
         animationDuration: const Duration(milliseconds: 200));
 
+    Deck? getActiveDeck() => (_activeDeckI < 0 || _activeDeckI >= _decks.length)
+        ? null
+        : _decks[_activeDeckI];
+
     OrderMode getOrderMode() =>
         OrderMode.values[(_prefs.getInt(SettingKeys.orderMode.name) ?? 0)];
 
@@ -278,20 +282,19 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
     _cardPageCallbacks = CardPageCallbacks(
       //
-      getActiveDeck: () {
-        if (_activeDeckI < 0 || _activeDeckI >= _decks.length) return null;
-        return _decks[_activeDeckI];
-      },
+      getActiveDeck: getActiveDeck,
       incCardPriorityCb: (index) {
+        var deck = getActiveDeck();
+        if (deck == null) return;
         setState(() {
-          // TODO
-          //_cards[index].incPriority();
+          deck.cards![index].incPriority();
         });
       },
       decCardPriorityCb: (index) {
+        var deck = getActiveDeck();
+        if (deck == null) return;
         setState(() {
-          // TODO
-          //_cards[index].decPriority();
+          deck.cards![index].decPriority();
         });
       },
       getOrderMode: getOrderMode,
@@ -299,10 +302,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
     _listPageCallbacks = ListPageCallbacks(
       //
-      getActiveDeck: () {
-        if (_activeDeckI < 0 || _activeDeckI >= _decks.length) return null;
-        return _decks[_activeDeckI];
-      },
+      getActiveDeck: getActiveDeck,
     );
 
     _settingsPageCallbacks = SettingsPageCallbacks(

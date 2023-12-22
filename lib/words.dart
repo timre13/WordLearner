@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 
 import 'main.dart';
 
-const _INC_PRIO_VAL = 10;
-const _DEC_PRIO_VAL = 1;
+const incPrioVal = 10;
+const decPrioVal = 1;
 
 class Word {
   String side1;
@@ -14,11 +14,19 @@ class Word {
   int _priority;
 
   void incPriority() {
-    _priority += _INC_PRIO_VAL;
+    if (kDebugMode) {
+      print(
+          "Increasing priority of $this from $_priority to ${_priority + incPrioVal}");
+    }
+    _priority += incPrioVal;
   }
 
   void decPriority() {
-    _priority -= _DEC_PRIO_VAL;
+    if (kDebugMode) {
+      print(
+          "Decreasing priority of $this from $_priority to ${_priority - decPrioVal}");
+    }
+    _priority -= decPrioVal;
   }
 
   int get priority => _priority;
