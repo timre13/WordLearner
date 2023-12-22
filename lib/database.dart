@@ -72,7 +72,7 @@ class Database {
       VALUES (?, ?, ?, ?)
     """);
     var rand = Random();
-    for (var i = 0; i < 100; ++i) {
+    for (var i = 0; i < 30; ++i) {
       final deck = rand.nextInt(4);
       stmt.execute([
         deck,

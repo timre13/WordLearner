@@ -1,6 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:word_learner/main.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:word_learner/main.dart';
+import 'package:word_learner/words.dart';
+
+import 'common.dart';
 import 'word_list_widget.dart';
 
 class ListPage extends StatefulWidget {
@@ -38,6 +43,29 @@ class _ListPageState extends State<ListPage>
 
   @override
   bool get wantKeepAlive => true;
+
+  void importBtnCb() {
+    const params =
+        OpenFileDialogParams(dialogType: OpenFileDialogType.document);
+    FlutterFileDialog.pickFile(params: params).then((value) {
+      if (value != null) {
+        List<Word> words = [];
+        try {
+          words = wordListRemoveDups(loadWordsOrThrow(value));
+        } on FormatException catch (e) {
+          showErrorDialog(context, "Failed to load wordlist", e.message);
+        } on FileSystemException catch (e) {
+          showErrorDialog(context, "Failed to load wordlist", e.message);
+        }
+        if (words.isNotEmpty) {
+          showInfoSnackBar(context, "Loaded ${words.length} word pairs");
+        }
+        setState(() {
+          widget.cbs.getActiveDeck()!.cards!.addAll(words);
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +117,7 @@ class _ListPageState extends State<ListPage>
                         ),
                         const PopupMenuDivider(),
                         PopupMenuItem(
-                          onTap: () {
-                            print("TODO: Import Cards");
-                          },
+                          onTap: importBtnCb,
                           child: const Text("Import Cards"),
                         ),
                       ])

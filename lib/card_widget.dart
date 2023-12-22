@@ -31,6 +31,8 @@ class _CardWidgetState extends State<CardWidget> {
   @override
   Widget build(BuildContext context) {
     assert(widget.data.cardI != null);
+    final card =
+        widget.cbs.getActiveDeck()!.cards!.elementAt(widget.data.cardI!);
     return AnimatedContainer(
         transformAlignment: Alignment.center,
         duration: Duration(milliseconds: widget.data.cardAnimDurMs),
@@ -49,17 +51,7 @@ class _CardWidgetState extends State<CardWidget> {
                 splashColor: Colors.white.withAlpha(10),
                 child: Center(
                   child: Text(
-                    (widget.data.isCardSide1
-                        ? widget.cbs
-                            .getActiveDeck()!
-                            .cards!
-                            .elementAt(widget.data.cardI!)
-                            .side1
-                        : widget.cbs
-                            .getActiveDeck()!
-                            .cards!
-                            .elementAt(widget.data.cardI!)
-                            .side2),
+                    (widget.data.isCardSide1 ? card.side1 : card.side2),
                     style:
                         const TextStyle(color: Color(0xffaaaaaa), fontSize: 30),
                     textAlign: TextAlign.center,
