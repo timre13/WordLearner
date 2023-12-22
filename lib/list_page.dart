@@ -34,6 +34,7 @@ class _ListPageState extends State<ListPage>
   }
 
   _OrderMode orderMode = _OrderMode.original;
+  bool showPriors = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -53,7 +54,7 @@ class _ListPageState extends State<ListPage>
           (a, b) => a.side1.toLowerCase().compareTo(b.side1.toLowerCase()));
     }
 
-    var listWidget = WordListWidget(words: cards);
+    var listWidget = WordListWidget(words: cards, showPriors: showPriors);
     return Scaffold(
       appBar: AppBar(
         title: IconButton(
@@ -63,16 +64,38 @@ class _ListPageState extends State<ListPage>
           },
         ),
         actions: _OrderMode.values
-            .map((e) => IconButton(
-                icon: Icon(e.toButtonIcon(),
-                    color: (orderMode == e ? null : Colors.grey)),
-                tooltip: e.toButtonLabel(),
-                onPressed: () {
-                  setState(() {
-                    orderMode = e;
-                  });
-                }))
-            .toList(),
+                .map((e) => IconButton(
+                    icon: Icon(e.toButtonIcon(),
+                        color: (orderMode == e ? null : Colors.grey)),
+                    tooltip: e.toButtonLabel(),
+                    onPressed: () {
+                      setState(() {
+                        orderMode = e;
+                      });
+                    }))
+                .toList(growable: false)
+                .cast<Widget>() +
+            [
+              PopupMenuButton(
+                  itemBuilder: (context) => <PopupMenuEntry>[
+                        CheckedPopupMenuItem(
+                          checked: showPriors,
+                          onTap: () {
+                            setState(() {
+                              showPriors = !showPriors;
+                            });
+                          },
+                          child: const Text("Show Priority"),
+                        ),
+                        const PopupMenuDivider(),
+                        PopupMenuItem(
+                          onTap: () {
+                            print("TODO: Import Cards");
+                          },
+                          child: const Text("Import Cards"),
+                        ),
+                      ])
+            ].cast<Widget>(),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
       body: listWidget,

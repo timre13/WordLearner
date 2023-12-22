@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:word_learner/words.dart';
 
 class WordListWidget extends StatefulWidget {
-  WordListWidget({Key? key, required this.words}) : super(key: key);
+  WordListWidget({super.key, required this.words, required this.showPriors});
 
   final List<Word> words;
+  final bool showPriors;
   final _scrollController = ScrollController();
 
   void scrollToTop() {
@@ -33,16 +34,23 @@ class _WordListWidgetState extends State<WordListWidget> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                  flex: 1,
-                  child: Text(widget.words.elementAt(index).side1,
-                      style: textStyle, maxLines: 2)),
-              const VerticalDivider(width: 10),
-              Expanded(
-                  flex: 1,
-                  child: Text(widget.words.elementAt(index).side2,
-                      style: textStyle, maxLines: 2)),
-            ],
+                  Expanded(
+                      flex: 1,
+                      child: Text(widget.words.elementAt(index).side1,
+                          style: textStyle, maxLines: 2)),
+                  const VerticalDivider(width: 10),
+                  Expanded(
+                      flex: 1,
+                      child: Text(widget.words.elementAt(index).side2,
+                          style: textStyle, maxLines: 2)),
+                ] +
+                (widget.showPriors
+                    ? [
+                        const VerticalDivider(width: 10),
+                        Text(widget.words.elementAt(index).priority.toString(),
+                            style: textStyle, maxLines: 1),
+                      ]
+                    : []),
           );
         });
   }
