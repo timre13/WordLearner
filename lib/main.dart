@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:word_learner/database.dart';
+import 'package:word_learner/words.dart';
 
 import 'card_page.dart';
 import 'deck.dart';
@@ -57,21 +57,14 @@ class WrapperWidget extends StatefulWidget {
 
 class _WrapperWidgetState extends State<WrapperWidget> {
   late Future<List<Deck>> _decksFuture;
+  late Database _db;
 
   Future<List<Deck>> loadDecks() async {
-    var db = await Database.create();
-    db.reset();
-    List<Deck> decks = db.loadDecks();
+    _db = await Database.create();
+    _db.reset();
+    List<Deck> decks = _db.loadDecks();
     for (final deck in decks) {
-      if (kDebugMode) {
-        print("--- Deck: ${deck.name} ---");
-      }
-      db.loadCardsOfDeck(deck);
-      for (final card in deck.cards!) {
-        if (kDebugMode) {
-          print("Card: ${card.side1} / ${card.side2}");
-        }
-      }
+      _db.loadCardsOfDeck(deck);
     }
     return decks;
   }
@@ -107,15 +100,16 @@ class _WrapperWidgetState extends State<WrapperWidget> {
                             strokeWidth: 8))));
           }
 
-          return MainWidget(decks: snapshot.data!);
+          return MainWidget(decks: snapshot.data!, db: _db);
         });
   }
 }
 
 class MainWidget extends StatefulWidget {
-  const MainWidget({super.key, required this.decks});
+  const MainWidget({super.key, required this.decks, required this.db});
 
   final List<Deck> decks;
+  final Database db;
 
   @override
   State<MainWidget> createState() => _MainWidgetState();
@@ -167,8 +161,10 @@ class CardPageCallbacks {
 
 class ListPageCallbacks {
   final Deck? Function() getActiveDeck;
+  final void Function(List<Word>) addCardsToActiveDeck;
 
-  ListPageCallbacks({required this.getActiveDeck});
+  ListPageCallbacks(
+      {required this.getActiveDeck, required this.addCardsToActiveDeck});
 }
 
 class SettingsPageCallbacks {
@@ -301,9 +297,14 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
     );
 
     _listPageCallbacks = ListPageCallbacks(
-      //
-      getActiveDeck: getActiveDeck,
-    );
+        //
+        getActiveDeck: getActiveDeck,
+        addCardsToActiveDeck: (List<Word> cards) {
+          var deck = getActiveDeck();
+          if (deck == null) return;
+          deck.cards!.addAll(cards);
+          widget.db.addCardsToDeck(deck.dbId, cards);
+        });
 
     _settingsPageCallbacks = SettingsPageCallbacks(
         //

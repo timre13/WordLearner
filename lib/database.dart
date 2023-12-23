@@ -73,7 +73,7 @@ class Database {
     """);
     var rand = Random();
     for (var i = 0; i < 30; ++i) {
-      final deck = rand.nextInt(4);
+      final deck = rand.nextInt(3) + 1;
       stmt.execute([
         deck,
         "Card #$deck-${i + 1}A",
@@ -184,5 +184,22 @@ class Database {
       print("Got card count for deck");
     }
     return result;
+  }
+
+  void addCardsToDeck(int deckId, List<Word> cards) {
+    var query = _db.prepare("""
+        INSERT INTO cards (deckId, frontSideText, backSideText, dateCreated, priority)
+        VALUES (?, ?, ?, ?, ?)
+    """);
+    for (final card in cards) {
+      query.execute([
+        deckId,
+        card.side1,
+        card.side2,
+        0,
+        (card.priority == 100 ? null : card.priority)
+      ]);
+    }
+    query.dispose();
   }
 }

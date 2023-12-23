@@ -61,7 +61,7 @@ class _ListPageState extends State<ListPage>
           showInfoSnackBar(context, "Loaded ${words.length} word pairs");
         }
         setState(() {
-          widget.cbs.getActiveDeck()!.cards!.addAll(words);
+          widget.cbs.addCardsToActiveDeck(words);
         });
       }
     });
