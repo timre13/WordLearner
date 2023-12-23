@@ -61,7 +61,6 @@ class _WrapperWidgetState extends State<WrapperWidget> {
 
   Future<List<Deck>> loadDecks() async {
     _db = await Database.create();
-    _db.reset();
     List<Deck> decks = _db.loadDecks();
     for (final deck in decks) {
       _db.loadCardsOfDeck(deck);

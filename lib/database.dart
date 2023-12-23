@@ -26,6 +26,7 @@ class Database {
 
     var filePath = path_pkg.join(dirPath?.path ?? "", "database.db");
     result._db = sqlite.sqlite3.open(filePath);
+    result._initScheme();
     if (kDebugMode) {
       print("Opened database at $filePath");
     }
@@ -58,30 +59,32 @@ class Database {
       )
     """);
 
-    _db.prepare("""
+    if (false) {
+      _db.prepare("""
       INSERT INTO decks (dateCreated, name, description)
       VALUES (?, ?, ?)
     """)
-      ..execute([1234, "Deck #1", "Foo"])
-      ..execute([5678, "Deck #2", "Bar"])
-      ..execute([6245, "Deck #3", "Baz"])
-      ..dispose();
+        ..execute([1234, "Deck #1", "Foo"])
+        ..execute([5678, "Deck #2", "Bar"])
+        ..execute([6245, "Deck #3", "Baz"])
+        ..dispose();
 
-    var stmt = _db.prepare("""
+      var stmt = _db.prepare("""
       INSERT INTO cards (deckId, frontSideText, backSideText, dateCreated)
       VALUES (?, ?, ?, ?)
     """);
-    var rand = Random();
-    for (var i = 0; i < 30; ++i) {
-      final deck = rand.nextInt(3) + 1;
-      stmt.execute([
-        deck,
-        "Card #$deck-${i + 1}A",
-        "Card #$deck-${i + 1}B",
-        rand.nextInt(1000)
-      ]);
+      var rand = Random();
+      for (var i = 0; i < 30; ++i) {
+        final deck = rand.nextInt(3) + 1;
+        stmt.execute([
+          deck,
+          "Card #$deck-${i + 1}A",
+          "Card #$deck-${i + 1}B",
+          rand.nextInt(1000)
+        ]);
+      }
+      stmt.dispose();
     }
-    stmt.dispose();
 
     if (kDebugMode) {
       print("Initialized database");
