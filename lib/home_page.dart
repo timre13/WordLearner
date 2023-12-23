@@ -14,13 +14,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    const divider = Divider(
-      height: 8,
-      thickness: 1,
-      indent: 10,
-      endIndent: 10,
-    );
-
     return Center(
       child: Column(
         children: [
@@ -28,7 +21,13 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.only(bottom: 10),
               child: Text("Word Learner", textScaleFactor: 2)),
           HomePageButton(
-              icon: Icons.file_open, label: "Create list...", onPressed: () {}),
+              icon: Icons.file_open,
+              label: "Create list...",
+              onPressed: () {
+                setState(() {
+                  widget.cbs.createDeck();
+                });
+              }),
           const Divider(),
           Expanded(
               child: Padding(

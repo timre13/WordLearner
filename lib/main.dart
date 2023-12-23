@@ -133,12 +133,14 @@ class HomePageCallbacks {
   final ExportDocTheme Function() getExportDocTheme;
 
   final List<Deck> Function() getDecks;
+  final void Function() createDeck;
   final void Function(int) setActiveDeckI;
   final int Function() getActiveDeckI;
 
   HomePageCallbacks({
     required this.getExportDocTheme,
     required this.getDecks,
+    required this.createDeck,
     required this.setActiveDeckI,
     required this.getActiveDeckI,
   });
@@ -267,6 +269,21 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       //
       getExportDocTheme: getExportDocTheme,
       getDecks: () => _decks,
+      createDeck: () {
+        widget.db.createDeck();
+        // Reload decks
+        // TODO: Optimize
+        _decks = widget.db.loadDecks();
+        for (var d in _decks) {
+          if (d.cards == null) {
+            widget.db.loadCardsOfDeck(d);
+          }
+        }
+        setState(() {
+          // Select the new deck
+          _activeDeckI = _decks.length - 1;
+        });
+      },
       setActiveDeckI: (val) {
         setState(() {
           _activeDeckI = val;

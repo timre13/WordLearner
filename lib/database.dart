@@ -206,4 +206,23 @@ class Database {
     }
     query.dispose();
   }
+
+  void createDeck() {
+    if (kDebugMode) {
+      print("Creating new deck");
+    }
+
+    _db.prepare("""
+        INSERT INTO decks (name, description, dateCreated)
+        VALUES (?, '', ?)
+    """)
+      ..execute([
+        (List.generate(
+            8,
+            (_) => "abcdefghijklmnopqrstuvwxyz0123456789"[
+                Random().nextInt(36)]).join()),
+        DateTime.now().millisecondsSinceEpoch ~/ 1000
+      ])
+      ..dispose();
+  }
 }
