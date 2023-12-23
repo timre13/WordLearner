@@ -158,6 +158,7 @@ class Database {
       deck.cards!.add(Word(
         row["frontSideText"] as String,
         row["backSideText"] as String,
+        DateTime.fromMillisecondsSinceEpoch((row["dateCreated"] as int) * 1000),
         row["priority"] as int?,
       ));
     }
@@ -196,7 +197,7 @@ class Database {
         deckId,
         card.side1,
         card.side2,
-        0,
+        card.dateCreated.millisecondsSinceEpoch ~/ 1000,
         (card.priority == 100 ? null : card.priority)
       ]);
     }

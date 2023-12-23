@@ -11,6 +11,7 @@ const decPrioVal = 1;
 class Word {
   String side1;
   String side2;
+  DateTime dateCreated;
   int _priority;
 
   void incPriority() {
@@ -36,7 +37,8 @@ class Word {
     return "Word('$side1', '$side2')";
   }
 
-  Word(this.side1, this.side2, [int? priority]) : _priority = priority ?? 100;
+  Word(this.side1, this.side2, this.dateCreated, [int? priority])
+      : _priority = priority ?? 100;
 }
 
 List<Word> loadWordsOrThrow(String path) {
@@ -53,7 +55,7 @@ List<Word> loadWordsOrThrow(String path) {
     if (cols.length != 2) {
       throw const FormatException("CSV file has invalid format");
     }
-    words.add(Word(cols.elementAt(0), cols.elementAt(1)));
+    words.add(Word(cols.elementAt(0), cols.elementAt(1), DateTime.now()));
   }
 
   if (kDebugMode) {
