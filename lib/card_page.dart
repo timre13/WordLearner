@@ -61,8 +61,10 @@ class _CardPageState extends State<CardPage>
 
     Widget w;
     if (deck == null) {
-      w = const Text("No list open");
+      w = const Text("No deck open");
       _data.cardI = null;
+    } else if (deck.cards!.isEmpty) {
+      w = const Text("Deck is empty");
     } else {
       if (_data.lastUsedDeck != deck) {
         _data.cardI = null;

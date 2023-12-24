@@ -70,11 +70,12 @@ class _ListPageState extends State<ListPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (widget.cbs.getActiveDeck() == null) {
-      return const Center(child: Text("No list open"));
+    var deck = widget.cbs.getActiveDeck();
+    if (deck == null) {
+      return const Center(child: Text("No deck open"));
     }
 
-    var cards = [...widget.cbs.getActiveDeck()!.cards!];
+    var cards = [...deck.cards!];
     if (orderMode == _OrderMode.shuffled) {
       cards.shuffle();
     } else if (orderMode == _OrderMode.alphabet) {
@@ -82,13 +83,15 @@ class _ListPageState extends State<ListPage>
           (a, b) => a.side1.toLowerCase().compareTo(b.side1.toLowerCase()));
     }
 
-    var listWidget = WordListWidget(words: cards, showPriors: showPriors);
+    var listWidget = deck.cards!.isNotEmpty
+        ? WordListWidget(words: cards, showPriors: showPriors)
+        : null;
     return Scaffold(
       appBar: AppBar(
         title: IconButton(
           icon: const Icon(Icons.keyboard_double_arrow_up, color: Colors.grey),
           onPressed: () {
-            listWidget.scrollToTop();
+            listWidget?.scrollToTop();
           },
         ),
         actions: _OrderMode.values
@@ -124,7 +127,7 @@ class _ListPageState extends State<ListPage>
             ].cast<Widget>(),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       ),
-      body: listWidget,
+      body: listWidget ?? const Center(child: Text("Deck is empty")),
     );
   }
 }
