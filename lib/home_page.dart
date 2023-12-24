@@ -14,6 +14,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
+    final scrollCtrl = ScrollController();
+
     return Center(
       child: Column(
         children: [
@@ -27,53 +29,65 @@ class _HomePageState extends State<HomePage> {
                 setState(() {
                   widget.cbs.createDeck();
                 });
+                scrollCtrl.animateTo(scrollCtrl.position.maxScrollExtent + 100,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut);
               }),
           const Divider(),
           Expanded(
               child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Table(
-                    children: const [
-                          TableRow(children: [
-                            Text("Name",
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text("Description",
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text("Cards",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.right)
-                          ])
-                        ] +
-                        widget.cbs
-                            .getDecks()
-                            .mapIndexed((i, deck) => TableRow(
-                                  decoration: BoxDecoration(
-                                      color: i == widget.cbs.getActiveDeckI()
-                                          ? Colors.grey.shade700
-                                          : Colors.transparent),
-                                  children: [
-                                    InkWell(
-                                      child: Text(deck.name,
-                                          style: const TextStyle(
-                                              decoration:
-                                                  TextDecoration.underline)),
-                                      onTapDown: (_) {
-                                        widget.cbs.setActiveDeckI(i);
-                                      },
-                                    ),
-                                    Text(deck.description ?? ""),
-                                    Text(deck.cards?.length.toString() ?? "???",
-                                        textAlign: TextAlign.right),
-                                  ],
-                                ))
-                            .toList(growable: false),
-                    columnWidths: const {
-                      0: FractionColumnWidth(0.30),
-                      1: FractionColumnWidth(0.55),
-                      2: FractionColumnWidth(0.15)
-                    },
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  ))),
+                  child: SingleChildScrollView(
+                      controller: scrollCtrl,
+                      child: Table(
+                        children: const [
+                              TableRow(children: [
+                                Text("Name",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                Text("Description",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                Text("Cards",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.right)
+                              ])
+                            ] +
+                            widget.cbs
+                                .getDecks()
+                                .mapIndexed((i, deck) => TableRow(
+                                      decoration: BoxDecoration(
+                                          color:
+                                              i == widget.cbs.getActiveDeckI()
+                                                  ? Colors.grey.shade700
+                                                  : Colors.transparent),
+                                      children: [
+                                        InkWell(
+                                          child: Text(deck.name,
+                                              style: const TextStyle(
+                                                  decoration: TextDecoration
+                                                      .underline)),
+                                          onTapDown: (_) {
+                                            widget.cbs.setActiveDeckI(i);
+                                          },
+                                        ),
+                                        Text(deck.description ?? ""),
+                                        Text(
+                                            deck.cards?.length.toString() ??
+                                                "???",
+                                            textAlign: TextAlign.right),
+                                      ],
+                                    ))
+                                .toList(growable: false),
+                        columnWidths: const {
+                          0: FractionColumnWidth(0.30),
+                          1: FractionColumnWidth(0.55),
+                          2: FractionColumnWidth(0.15)
+                        },
+                        defaultVerticalAlignment:
+                            TableCellVerticalAlignment.middle,
+                      )))),
         ],
       ),
     );
