@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:word_learner/words.dart';
+import 'package:latext/latext.dart';
+import 'package:html_unescape/html_unescape.dart';
 
 import 'card_page.dart';
 import 'main.dart';
@@ -33,6 +35,7 @@ class _CardWidgetState extends State<CardWidget> {
     assert(widget.data.cardI != null);
     final card =
         widget.cbs.getActiveDeck()!.cards!.elementAt(widget.data.cardI!);
+    var unescape = HtmlUnescape();
     return AnimatedContainer(
         transformAlignment: Alignment.center,
         duration: Duration(milliseconds: widget.data.cardAnimDurMs),
@@ -50,11 +53,18 @@ class _CardWidgetState extends State<CardWidget> {
                 highlightColor: Colors.transparent,
                 splashColor: Colors.white.withAlpha(10),
                 child: Center(
-                  child: Text(
-                    (widget.data.isCardSide1 ? card.side1 : card.side2),
-                    style:
-                        const TextStyle(color: Color(0xffaaaaaa), fontSize: 30),
-                    textAlign: TextAlign.center,
+                  child: LaTexT(
+                    laTeXCode: Text(
+                      unescape.convert(widget.data.isCardSide1
+                          ? card.side1
+                          : card.side2
+                              .replaceAll(r"\(", r"$")
+                              .replaceAll(r"\)", r"$")
+                              .replaceAll("&nbsp;", r"$\;$")
+                              .replaceAll("<br>", r"$ \\ $")),
+                      style: const TextStyle(color: Color(0xffaaaaaa)),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
                 // Note: Use the InkWell's `onTap()` because it seems to get
