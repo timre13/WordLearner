@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -22,7 +23,9 @@ class Database {
     var result = Database._createUninited();
 
     WidgetsFlutterBinding.ensureInitialized();
-    var dirPath = await getExternalStorageDirectory();
+    var dirPath = (Platform.isLinux || Platform.isWindows || Platform.isMacOS)
+        ? await getApplicationDocumentsDirectory()
+        : await getExternalStorageDirectory();
 
     var filePath = path_pkg.join(dirPath?.path ?? "", "database.db");
     result._db = sqlite.sqlite3.open(filePath);

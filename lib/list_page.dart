@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:word_learner/main.dart';
 import 'package:word_learner/words.dart';
 
@@ -45,13 +45,17 @@ class _ListPageState extends State<ListPage>
   bool get wantKeepAlive => true;
 
   void importBtnCb() {
-    const params =
-        OpenFileDialogParams(dialogType: OpenFileDialogType.document);
-    FlutterFileDialog.pickFile(params: params).then((value) {
-      if (value != null) {
+    FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ["txt", "csv", "tsv"],
+    ).then((value) {
+      if (value != null &&
+          value.files.isNotEmpty &&
+          value.files[0].path != null) {
         List<Word> words = [];
         try {
-          words = wordListRemoveDups(loadWordsOrThrow(value));
+          words = wordListRemoveDups(loadWordsOrThrow(value.files[0].path!));
         } on FormatException catch (e) {
           showErrorDialog(context, "Failed to load wordlist", e.message);
         } on FileSystemException catch (e) {

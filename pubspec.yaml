@@ -37,7 +37,6 @@ dependencies:
   cupertino_icons: ^1.0.2
 
   package_info_plus: ^4.2.0
-  flutter_file_dialog: ^3.0.2
   flutter_native_splash: ^2.2.13
   shared_preferences: ^2.0.15
   path_provider: ^2.0.11
@@ -49,6 +48,7 @@ dependencies:
   collection: ^1.18.0
   latext: ^0.2.0
   html_unescape: ^2.0.0
+  file_picker: ^8.0.0+1
 
 dev_dependencies:
   flutter_test:
