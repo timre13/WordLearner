@@ -1,7 +1,10 @@
 import "package:flutter/material.dart";
 
 class TextDialog extends StatefulWidget {
-  const TextDialog({super.key});
+  const TextDialog({super.key, required this.title, required this.fieldText});
+
+  final String title;
+  final String fieldText;
 
   @override
   State<TextDialog> createState() => _TextDialogState();
@@ -15,7 +18,7 @@ class _TextDialogState extends State<TextDialog> {
     var field = TextField(
         controller: textEditController,
         autofocus: true,
-        decoration: const InputDecoration(labelText: "List name"),
+        decoration: InputDecoration(labelText: widget.fieldText),
         textCapitalization: TextCapitalization.sentences);
 
     return Dialog(
@@ -25,7 +28,7 @@ class _TextDialogState extends State<TextDialog> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text("Create List", style: TextStyle(fontSize: 20)),
+                Text(widget.title, style: const TextStyle(fontSize: 20)),
                 Padding(padding: const EdgeInsets.all(10), child: field),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
