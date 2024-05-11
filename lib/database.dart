@@ -222,4 +222,16 @@ class Database {
       ..execute([name, DateTime.now().millisecondsSinceEpoch ~/ 1000])
       ..dispose();
   }
+
+  void deleteDeck(int dbId) {
+    if (kDebugMode) {
+      print("Deleting deck with DB ID $dbId");
+    }
+
+    _db.prepare("""
+        DELETE FROM decks WHERE id = ?
+    """)
+      ..execute([dbId])
+      ..dispose();
+  }
 }

@@ -136,6 +136,7 @@ class HomePageCallbacks {
   final void Function(String name) createDeck;
   final void Function(int) setActiveDeckI;
   final int Function() getActiveDeckI;
+  final void Function(int) deleteDeck;
 
   HomePageCallbacks({
     required this.getExportDocTheme,
@@ -143,6 +144,7 @@ class HomePageCallbacks {
     required this.createDeck,
     required this.setActiveDeckI,
     required this.getActiveDeckI,
+    required this.deleteDeck,
   });
 }
 
@@ -265,32 +267,41 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       updateNotifAndNavBar();
     });
 
-    _homePageCallbacks = HomePageCallbacks(
-      //
-      getExportDocTheme: getExportDocTheme,
-      getDecks: () => _decks,
-      createDeck: (name) {
-        widget.db.createDeck(name);
-        // Reload decks
-        // TODO: Optimize
-        _decks = widget.db.loadDecks();
-        for (var d in _decks) {
-          if (d.cards == null) {
-            widget.db.loadCardsOfDeck(d);
-          }
+    reloadDecks() {
+      // TODO: Optimize
+      _decks = widget.db.loadDecks();
+      for (var d in _decks) {
+        if (d.cards == null) {
+          widget.db.loadCardsOfDeck(d);
         }
-        setState(() {
-          // Select the new deck
-          _activeDeckI = _decks.length - 1;
+      }
+    }
+
+    _homePageCallbacks = HomePageCallbacks(
+        //
+        getExportDocTheme: getExportDocTheme,
+        getDecks: () => _decks,
+        createDeck: (name) {
+          widget.db.createDeck(name);
+          reloadDecks();
+          setState(() {
+            // Select the new deck
+            _activeDeckI = _decks.length - 1;
+          });
+        },
+        setActiveDeckI: (val) {
+          setState(() {
+            _activeDeckI = val;
+          });
+        },
+        getActiveDeckI: () => _activeDeckI,
+        deleteDeck: (i) {
+          widget.db.deleteDeck(_decks[i].dbId);
+          reloadDecks();
+          setState(() {
+            _activeDeckI = -1;
+          });
         });
-      },
-      setActiveDeckI: (val) {
-        setState(() {
-          _activeDeckI = val;
-        });
-      },
-      getActiveDeckI: () => _activeDeckI,
-    );
 
     _cardPageCallbacks = CardPageCallbacks(
       //

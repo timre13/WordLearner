@@ -43,6 +43,18 @@ class _HomePageState extends State<HomePage> {
                   curve: Curves.easeInOut);
             }),
           ),
+          HomePageButton(
+              icon: Icons.delete_forever,
+              label: "Delete deck",
+              onPressed: () {
+                if (widget.cbs.getActiveDeckI() == -1) {
+                  showErrorDialog(
+                      context, "Failed to delete", "No selected deck");
+                  return;
+                }
+
+                widget.cbs.deleteDeck(widget.cbs.getActiveDeckI());
+              }),
           const Divider(),
           Expanded(
               child: Padding(
