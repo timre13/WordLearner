@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import "package:word_learner/TextDialog.dart";
 import 'package:word_learner/main.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,16 +24,22 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.only(bottom: 10),
               child: Text("Word Learner", textScaler: TextScaler.linear(2))),
           HomePageButton(
-              icon: Icons.file_open,
-              label: "Create list...",
-              onPressed: () {
-                setState(() {
-                  widget.cbs.createDeck();
-                });
-                scrollCtrl.animateTo(scrollCtrl.position.maxScrollExtent + 100,
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut);
-              }),
+            icon: Icons.file_open,
+            label: "Create list...",
+            onPressed: () => showDialog(
+                context: context,
+                builder: (context) => const TextDialog()).then((listName) {
+              if (listName == null) {
+                return;
+              }
+              setState(() {
+                widget.cbs.createDeck(listName);
+              });
+              scrollCtrl.animateTo(scrollCtrl.position.maxScrollExtent + 100,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut);
+            }),
+          ),
           const Divider(),
           Expanded(
               child: Padding(

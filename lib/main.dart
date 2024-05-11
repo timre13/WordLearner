@@ -133,7 +133,7 @@ class HomePageCallbacks {
   final ExportDocTheme Function() getExportDocTheme;
 
   final List<Deck> Function() getDecks;
-  final void Function() createDeck;
+  final void Function(String name) createDeck;
   final void Function(int) setActiveDeckI;
   final int Function() getActiveDeckI;
 
@@ -269,8 +269,8 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
       //
       getExportDocTheme: getExportDocTheme,
       getDecks: () => _decks,
-      createDeck: () {
-        widget.db.createDeck();
+      createDeck: (name) {
+        widget.db.createDeck(name);
         // Reload decks
         // TODO: Optimize
         _decks = widget.db.loadDecks();
