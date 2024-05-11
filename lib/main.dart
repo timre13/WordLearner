@@ -246,8 +246,8 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
           // will cover some of the UI. We use padding on the home and settings
           // pages. Here we get the necessary padding before hiding the
           // notification bar.
-          _topPadding = WidgetsBinding.instance.window.padding.top /
-              WidgetsBinding.instance.window.devicePixelRatio;
+          _topPadding =
+              View.of(context).padding.top / View.of(context).devicePixelRatio;
         });
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
       } else {

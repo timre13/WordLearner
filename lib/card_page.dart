@@ -46,10 +46,6 @@ class _CardPageState extends State<CardPage>
     with AutomaticKeepAliveClientMixin {
   final _data = CardPageData();
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   bool get wantKeepAlive => true;

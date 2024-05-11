@@ -33,10 +33,6 @@ enum _OrderMode {
 
 class _ListPageState extends State<ListPage>
     with AutomaticKeepAliveClientMixin {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   _OrderMode orderMode = _OrderMode.original;
   bool showPriors = false;

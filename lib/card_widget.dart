@@ -9,8 +9,7 @@ import 'card_page.dart';
 import 'main.dart';
 
 class CardWidget extends StatefulWidget {
-  const CardWidget({Key? key, required this.data, required this.cbs})
-      : super(key: key);
+  const CardWidget({super.key, required this.data, required this.cbs});
 
   final CardPageCallbacks cbs;
 

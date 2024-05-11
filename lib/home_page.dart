@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           const Padding(
               padding: EdgeInsets.only(bottom: 10),
-              child: Text("Word Learner", textScaleFactor: 2)),
+              child: Text("Word Learner", textScaler: TextScaler.linear(2))),
           HomePageButton(
               icon: Icons.file_open,
               label: "Create list...",

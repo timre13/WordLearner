@@ -5,7 +5,7 @@ import 'package:word_learner/export.dart';
 import 'package:word_learner/main.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key, required this.cbs}) : super(key: key);
+  const SettingsPage({super.key, required this.cbs});
 
   final SettingsPageCallbacks cbs;
 
@@ -86,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage>
             children: [
               const Text(
                 "Settings",
-                textScaleFactor: 2,
+                textScaler: TextScaler.linear(2),
               ),
               ...rows,
               // TODO: Link to github repo and profile
