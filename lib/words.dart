@@ -40,7 +40,7 @@ class Word {
       : _priority = priority ?? 100;
 }
 
-List<Word> loadWordsOrThrow(String path) {
+List<Word> loadWordsOrThrow(String path, String colSep) {
   if (kDebugMode) {
     print("Loading words from $path");
   }
@@ -49,12 +49,15 @@ List<Word> loadWordsOrThrow(String path) {
   var lines = File(path).readAsLinesSync();
 
   List<Word> words = [];
+  var lineI = 1;
   for (var line in lines) {
-    var cols = line.split(",");
+    var cols = line.split(colSep);
     if (cols.length != 2) {
-      throw const FormatException("CSV file has invalid format");
+      throw FormatException(
+          "CSV file has invalid format.\nLine $lineI has ${cols.length} columns.\nLine: \"$line\"");
     }
     words.add(Word(cols.elementAt(0), cols.elementAt(1), DateTime.now()));
+    ++lineI;
   }
 
   if (kDebugMode) {

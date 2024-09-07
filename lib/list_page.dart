@@ -30,6 +30,74 @@ enum _OrderMode {
   }
 }
 
+class SeparatorAskerDialog extends StatefulWidget {
+  const SeparatorAskerDialog({super.key});
+
+  @override
+  State<SeparatorAskerDialog> createState() => _SeparatorAskerDialogState();
+}
+
+class _SeparatorAskerDialogState extends State<SeparatorAskerDialog> {
+  String? dropdownValue = ",";
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+        shape: Border.all(),
+        child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const Text("Separator: "),
+                        DropdownButton(
+                            value: dropdownValue,
+                            items: const [
+                              DropdownMenuItem(value: ",", child: Text(",")),
+                              DropdownMenuItem(value: ";", child: Text(";")),
+                              DropdownMenuItem(value: "\t", child: Text("Tab")),
+                              DropdownMenuItem(value: "|", child: Text("|")),
+                              DropdownMenuItem(value: "/", child: Text("/")),
+                            ],
+                            onChanged: (value) {
+                              print(value);
+                              setState(() {
+                                dropdownValue = value;
+                              });
+                            })
+                      ]),
+                  Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context, dropdownValue);
+                            },
+                            child: const Text("OK")),
+                        TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text("Cancel"))
+                      ])
+                ])));
+  }
+}
+
+Future<String?> askSeparator(BuildContext context) async {
+  return await showDialog(
+      context: context,
+      builder: (context) {
+        return const SeparatorAskerDialog();
+      });
+}
+
 class _ListPageState extends State<ListPage>
     with AutomaticKeepAliveClientMixin {
   _OrderMode orderMode = _OrderMode.original;
@@ -38,7 +106,14 @@ class _ListPageState extends State<ListPage>
   @override
   bool get wantKeepAlive => true;
 
-  void importBtnCb() {
+  void importBtnCb() async {
+    final sep = await askSeparator(context);
+    if (sep == null) {
+      return;
+    }
+
+    assert(mounted);
+    if (!mounted) return;
     final model = Provider.of<MainModel>(context, listen: false);
     FilePicker.platform
         .pickFiles(
@@ -51,7 +126,8 @@ class _ListPageState extends State<ListPage>
           value.files[0].path != null) {
         List<Word> words = [];
         try {
-          words = wordListRemoveDups(loadWordsOrThrow(value.files[0].path!));
+          words =
+              wordListRemoveDups(loadWordsOrThrow(value.files[0].path!, sep));
         } on FormatException catch (e) {
           showErrorDialog(context, "Failed to load wordlist", e.message);
         } on FileSystemException catch (e) {
