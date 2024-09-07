@@ -2,16 +2,15 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:word_learner/main.dart';
+import 'package:provider/provider.dart';
+import 'package:word_learner/state.dart';
 import 'package:word_learner/words.dart';
 
 import 'common.dart';
 import 'word_list_widget.dart';
 
 class ListPage extends StatefulWidget {
-  const ListPage({super.key, required this.cbs});
-
-  final ListPageCallbacks cbs;
+  const ListPage({super.key});
 
   @override
   State<ListPage> createState() => _ListPageState();
@@ -33,7 +32,6 @@ enum _OrderMode {
 
 class _ListPageState extends State<ListPage>
     with AutomaticKeepAliveClientMixin {
-
   _OrderMode orderMode = _OrderMode.original;
   bool showPriors = false;
 
@@ -41,11 +39,13 @@ class _ListPageState extends State<ListPage>
   bool get wantKeepAlive => true;
 
   void importBtnCb() {
-    FilePicker.platform.pickFiles(
+    final model = Provider.of<MainModel>(context, listen: false);
+    FilePicker.platform
+        .pickFiles(
       allowMultiple: false,
-      type: FileType.custom,
-      allowedExtensions: ["txt", "csv", "tsv"],
-    ).then((value) {
+      type: FileType.any,
+    )
+        .then((value) {
       if (value != null &&
           value.files.isNotEmpty &&
           value.files[0].path != null) {
@@ -60,9 +60,7 @@ class _ListPageState extends State<ListPage>
         if (words.isNotEmpty) {
           showInfoSnackBar(context, "Loaded ${words.length} word pairs");
         }
-        setState(() {
-          widget.cbs.addCardsToActiveDeck(words);
-        });
+        model.addCardsToActiveDeck(words);
       }
     });
   }
@@ -70,7 +68,8 @@ class _ListPageState extends State<ListPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var deck = widget.cbs.getActiveDeck();
+    final model = Provider.of<MainModel>(context);
+    var deck = model.activeDeck;
     if (deck == null) {
       return const Center(child: Text("No deck open"));
     }

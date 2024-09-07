@@ -6,30 +6,9 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart' as printing;
 import 'package:word_learner/common.dart';
+import 'package:word_learner/settings.dart';
 
 import 'words.dart';
-
-enum ExportDocTheme {
-  light,
-  sepia,
-  dark;
-
-  PdfColor getFgColor() {
-    return const [
-      PdfColors.black,
-      PdfColor.fromInt(0xff704214),
-      PdfColor.fromInt(0xffdddddd)
-    ][index];
-  }
-
-  PdfColor getBgColor() {
-    return const [
-      PdfColors.white,
-      PdfColor.fromInt(0xffeadbcb),
-      PdfColor.fromInt(0xff262626)
-    ][index];
-  }
-}
 
 void exportToPdf(
     BuildContext context, List<Word> words, String path, ExportDocTheme theme) {

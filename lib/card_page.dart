@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:word_learner/main.dart';
+import 'package:provider/provider.dart';
+import 'package:word_learner/settings.dart';
+import 'package:word_learner/state.dart';
 
 import 'card_widget.dart';
 import 'deck.dart';
 import 'words.dart';
 
 class CardPage extends StatefulWidget {
-  const CardPage({super.key, required this.cbs});
-
-  final CardPageCallbacks cbs;
+  const CardPage({super.key});
 
   @override
   State<CardPage> createState() => _CardPageState();
@@ -46,14 +46,15 @@ class _CardPageState extends State<CardPage>
     with AutomaticKeepAliveClientMixin {
   final _data = CardPageData();
 
-
   @override
   bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var deck = widget.cbs.getActiveDeck();
+    final model = Provider.of<MainModel>(context);
+    final settings = Provider.of<SettingsModel>(context);
+    var deck = model.activeDeck;
 
     Widget w;
     if (deck == null) {
@@ -70,8 +71,8 @@ class _CardPageState extends State<CardPage>
         }
       }
 
-      _data.cardI ??= getNextWordI(widget.cbs.getOrderMode(), deck.cards!);
-      w = CardWidget(data: _data, cbs: widget.cbs);
+      _data.cardI ??= getNextWordI(settings.orderMode, deck.cards!);
+      w = CardWidget(data: _data);
     }
     return Center(child: w);
   }

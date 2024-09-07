@@ -2,8 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-
-import 'main.dart';
+import 'package:word_learner/settings.dart';
 
 const incPrioVal = 10;
 const decPrioVal = 1;

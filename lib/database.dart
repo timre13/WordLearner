@@ -233,5 +233,29 @@ class Database {
     """)
       ..execute([dbId])
       ..dispose();
+
+    _db.prepare("""
+        DELETE FROM cards WHERE deckId = ?
+    """)
+      ..execute([dbId])
+      ..dispose();
+  }
+
+  int getDeckCount() {
+    if (kDebugMode) {
+      print("Getting deck count");
+    }
+
+    var query = _db.prepare("""
+        SELECT COUNT(id) AS count FROM decks
+      """);
+    sqlite.ResultSet queryResults = query.select();
+    query.dispose();
+    var result = queryResults[0]["count"];
+
+    if (kDebugMode) {
+      print("Got deck count");
+    }
+    return result;
   }
 }

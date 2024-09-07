@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:word_learner/database.dart';
-import 'package:word_learner/words.dart';
+import 'package:word_learner/settings.dart';
+import 'package:word_learner/state.dart';
 
 import 'card_page.dart';
-import 'deck.dart';
-import 'export.dart';
 import 'home_page.dart';
 import 'list_page.dart';
 import 'settings_page.dart';
@@ -56,29 +56,29 @@ class WrapperWidget extends StatefulWidget {
 }
 
 class _WrapperWidgetState extends State<WrapperWidget> {
-  late Future<List<Deck>> _decksFuture;
-  late Database _db;
-
-  Future<List<Deck>> loadDecks() async {
-    _db = await Database.create();
-    List<Deck> decks = _db.loadDecks();
-    for (final deck in decks) {
-      _db.loadCardsOfDeck(deck);
-    }
-    return decks;
-  }
+  late Future<Database> _dbFuture;
+  late Future<SharedPreferences> _prefsFuture;
 
   @override
   void initState() {
     super.initState();
 
-    _decksFuture = loadDecks();
+    _dbFuture = Database.create();
+
+    _prefsFuture = () async {
+      final val = await SharedPreferences.getInstance();
+      FlutterNativeSplash.remove();
+      return val;
+    }();
   }
 
   @override
   Widget build(BuildContext context) {
+    double topPaddingNeeded =
+        View.of(context).padding.top / View.of(context).devicePixelRatio;
+
     return FutureBuilder(
-        future: _decksFuture,
+        future: Future.wait([_dbFuture, _prefsFuture]),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Material(
@@ -99,101 +99,24 @@ class _WrapperWidgetState extends State<WrapperWidget> {
                             strokeWidth: 8))));
           }
 
-          return MainWidget(decks: snapshot.data!, db: _db);
+          return MultiProvider(providers: [
+            ChangeNotifierProvider(
+                create: (context) =>
+                    MainModel(db: snapshot.data![0] as Database)),
+            ChangeNotifierProvider(
+                create: (context) => SettingsModel(
+                    prefs: snapshot.data![1] as SharedPreferences,
+                    topPaddingNeeded: topPaddingNeeded)),
+          ], child: const MainWidget());
         });
   }
 }
 
 class MainWidget extends StatefulWidget {
-  const MainWidget({super.key, required this.decks, required this.db});
-
-  final List<Deck> decks;
-  final Database db;
+  const MainWidget({super.key});
 
   @override
   State<MainWidget> createState() => _MainWidgetState();
-}
-
-enum OrderMode {
-  randomPrio,
-  random,
-  original;
-
-  @override
-  String toString() {
-    return [
-      "Random with priority",
-      "Random",
-      "Original",
-    ][index];
-  }
-}
-
-class HomePageCallbacks {
-  final ExportDocTheme Function() getExportDocTheme;
-
-  final List<Deck> Function() getDecks;
-  final void Function(String name) createDeck;
-  final void Function(int) setActiveDeckI;
-  final int Function() getActiveDeckI;
-  final void Function(int) deleteDeck;
-
-  HomePageCallbacks({
-    required this.getExportDocTheme,
-    required this.getDecks,
-    required this.createDeck,
-    required this.setActiveDeckI,
-    required this.getActiveDeckI,
-    required this.deleteDeck,
-  });
-}
-
-class CardPageCallbacks {
-  final Deck? Function() getActiveDeck;
-  final void Function(int index) incCardPriorityCb;
-  final void Function(int index) decCardPriorityCb;
-  final OrderMode Function() getOrderMode;
-
-  CardPageCallbacks({
-    required this.getActiveDeck,
-    required this.incCardPriorityCb,
-    required this.decCardPriorityCb,
-    required this.getOrderMode,
-  });
-}
-
-class ListPageCallbacks {
-  final Deck? Function() getActiveDeck;
-  final void Function(List<Word>) addCardsToActiveDeck;
-
-  ListPageCallbacks(
-      {required this.getActiveDeck, required this.addCardsToActiveDeck});
-}
-
-class SettingsPageCallbacks {
-  final OrderMode Function() getOrderMode;
-  final void Function(OrderMode mode) setOrderMode;
-
-  final bool Function() getHideNotifAndNavBar;
-  final void Function(bool hide) setHideNotifAndNavBar;
-
-  final ExportDocTheme Function() getExportDocTheme;
-  final Function(ExportDocTheme theme) setExportDocTheme;
-
-  SettingsPageCallbacks({
-    required this.getOrderMode,
-    required this.setOrderMode,
-    required this.getHideNotifAndNavBar,
-    required this.setHideNotifAndNavBar,
-    required this.getExportDocTheme,
-    required this.setExportDocTheme,
-  });
-}
-
-enum SettingKeys {
-  orderMode,
-  hideNotifAndNavBar,
-  exportDocTheme,
 }
 
 class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
@@ -204,156 +127,16 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
     Icons.settings,
   ];
 
-  late SharedPreferences _prefs;
-  late List<Deck> _decks;
-  int _activeDeckI = -1;
-
-  late HomePageCallbacks _homePageCallbacks;
-  late CardPageCallbacks _cardPageCallbacks;
-  late ListPageCallbacks _listPageCallbacks;
-  late SettingsPageCallbacks _settingsPageCallbacks;
-
   late TabController _tabController;
-
-  double _topPadding = 0;
 
   @override
   void initState() {
     super.initState();
 
-    _decks = widget.decks;
-
     _tabController = TabController(
         length: _pageIcons.length,
         vsync: this,
         animationDuration: const Duration(milliseconds: 200));
-
-    Deck? getActiveDeck() => (_activeDeckI < 0 || _activeDeckI >= _decks.length)
-        ? null
-        : _decks[_activeDeckI];
-
-    OrderMode getOrderMode() =>
-        OrderMode.values[(_prefs.getInt(SettingKeys.orderMode.name) ?? 0)];
-
-    bool getHideNotifAndNavBar() =>
-        (_prefs.getBool(SettingKeys.hideNotifAndNavBar.name) ?? false);
-
-    ExportDocTheme getExportDocTheme() => ExportDocTheme
-        .values[(_prefs.getInt(SettingKeys.exportDocTheme.name) ?? 0)];
-
-    void updateNotifAndNavBar() {
-      if (getHideNotifAndNavBar()) {
-        setState(() {
-          // If we hide the notification bar, the notch
-          // will cover some of the UI. We use padding on the home and settings
-          // pages. Here we get the necessary padding before hiding the
-          // notification bar.
-          _topPadding =
-              View.of(context).padding.top / View.of(context).devicePixelRatio;
-        });
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-      } else {
-        setState(() {
-          _topPadding = 0;
-        });
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-            overlays: SystemUiOverlay.values);
-      }
-    }
-
-    SharedPreferences.getInstance().then((value) {
-      _prefs = value;
-      FlutterNativeSplash.remove();
-      updateNotifAndNavBar();
-    });
-
-    reloadDecks() {
-      // TODO: Optimize
-      _decks = widget.db.loadDecks();
-      for (var d in _decks) {
-        if (d.cards == null) {
-          widget.db.loadCardsOfDeck(d);
-        }
-      }
-    }
-
-    _homePageCallbacks = HomePageCallbacks(
-        //
-        getExportDocTheme: getExportDocTheme,
-        getDecks: () => _decks,
-        createDeck: (name) {
-          widget.db.createDeck(name);
-          reloadDecks();
-          setState(() {
-            // Select the new deck
-            _activeDeckI = _decks.length - 1;
-          });
-        },
-        setActiveDeckI: (val) {
-          setState(() {
-            _activeDeckI = val;
-          });
-        },
-        getActiveDeckI: () => _activeDeckI,
-        deleteDeck: (i) {
-          widget.db.deleteDeck(_decks[i].dbId);
-          reloadDecks();
-          setState(() {
-            _activeDeckI = -1;
-          });
-        });
-
-    _cardPageCallbacks = CardPageCallbacks(
-      //
-      getActiveDeck: getActiveDeck,
-      incCardPriorityCb: (index) {
-        var deck = getActiveDeck();
-        if (deck == null) return;
-        setState(() {
-          deck.cards![index].incPriority();
-        });
-      },
-      decCardPriorityCb: (index) {
-        var deck = getActiveDeck();
-        if (deck == null) return;
-        setState(() {
-          deck.cards![index].decPriority();
-        });
-      },
-      getOrderMode: getOrderMode,
-    );
-
-    _listPageCallbacks = ListPageCallbacks(
-        //
-        getActiveDeck: getActiveDeck,
-        addCardsToActiveDeck: (List<Word> cards) {
-          var deck = getActiveDeck();
-          if (deck == null) return;
-          deck.cards!.addAll(cards);
-          widget.db.addCardsToDeck(deck.dbId, cards);
-        });
-
-    _settingsPageCallbacks = SettingsPageCallbacks(
-        //
-        getOrderMode: getOrderMode,
-        setOrderMode: (mode) {
-          setState(() {
-            _prefs.setInt(SettingKeys.orderMode.name, mode.index);
-          });
-        },
-        getHideNotifAndNavBar: getHideNotifAndNavBar,
-        setHideNotifAndNavBar: (hide) {
-          setState(() {
-            _prefs.setBool(SettingKeys.hideNotifAndNavBar.name, hide);
-            updateNotifAndNavBar();
-          });
-        },
-        getExportDocTheme: getExportDocTheme,
-        setExportDocTheme: (theme) {
-          setState(() {
-            _prefs.setInt(SettingKeys.exportDocTheme.name, theme.index);
-          });
-        });
 
     // This is called when the navbar becomes visible.
     // When the triggering condition no longer applies, the settings won't be
@@ -371,6 +154,7 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsModel>(context);
     return Scaffold(
         bottomNavigationBar: TabBar(
           tabs: Iterable.generate(_pageIcons.length)
@@ -387,13 +171,13 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
             physics: const NeverScrollableScrollPhysics(),
             children: [
               Padding(
-                  padding: EdgeInsets.only(top: _topPadding),
-                  child: HomePage(cbs: _homePageCallbacks)),
-              CardPage(cbs: _cardPageCallbacks),
-              ListPage(cbs: _listPageCallbacks),
+                  padding: EdgeInsets.only(top: settings.topPadding),
+                  child: const HomePage()),
+              const CardPage(),
+              const ListPage(),
               Padding(
-                  padding: EdgeInsets.only(top: _topPadding),
-                  child: SettingsPage(cbs: _settingsPageCallbacks)),
+                  padding: EdgeInsets.only(top: settings.topPadding),
+                  child: const SettingsPage()),
             ],
           ),
         ));

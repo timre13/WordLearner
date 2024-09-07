@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:word_learner/common.dart';
-import 'package:word_learner/export.dart';
-import 'package:word_learner/main.dart';
+import 'package:word_learner/settings.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, required this.cbs});
-
-  final SettingsPageCallbacks cbs;
+  const SettingsPage({super.key});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -21,6 +19,8 @@ class _SettingsPageState extends State<SettingsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    final settings = Provider.of<SettingsModel>(context);
 
     // TODO: Option to hide notification bar
 
@@ -37,11 +37,9 @@ class _SettingsPageState extends State<SettingsPage>
                     value: orderMode, child: Text(orderMode.toString())))
                 .toList(),
             onChanged: (value) {
-              setState(() {
-                widget.cbs.setOrderMode(value!);
-              });
+              settings.orderMode = value!;
             },
-            value: widget.cbs.getOrderMode(),
+            value: settings.orderMode,
           )
         ],
       ),
@@ -49,9 +47,9 @@ class _SettingsPageState extends State<SettingsPage>
         children: [
           const Text("Hide system UI: "),
           CupertinoSwitch(
-              value: widget.cbs.getHideNotifAndNavBar(),
+              value: settings.hideNotifAndNavBar,
               onChanged: (value) {
-                widget.cbs.setHideNotifAndNavBar(value);
+                settings.hideNotifAndNavBar = value;
               },
               trackColor: Colors.blueGrey.shade800,
               activeColor: const Color(0xFF4CAF90))
@@ -69,11 +67,9 @@ class _SettingsPageState extends State<SettingsPage>
                     value: theme, child: Text(theme.name.capitalize())))
                 .toList(),
             onChanged: (value) {
-              setState(() {
-                widget.cbs.setExportDocTheme(value!);
-              });
+              settings.exportDocTheme = value!;
             },
-            value: widget.cbs.getExportDocTheme(),
+            value: settings.exportDocTheme,
           )
         ],
       ),

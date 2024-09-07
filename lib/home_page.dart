@@ -1,13 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import "package:word_learner/TextDialog.dart";
 import 'package:word_learner/common.dart';
-import 'package:word_learner/main.dart';
+import 'package:word_learner/state.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.cbs});
-
-  final HomePageCallbacks cbs;
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -17,6 +16,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final scrollCtrl = ScrollController();
+    final model = Provider.of<MainModel>(context);
 
     return Center(
       child: Column(
@@ -35,9 +35,7 @@ class _HomePageState extends State<HomePage> {
               if (listName == null) {
                 return;
               }
-              setState(() {
-                widget.cbs.createDeck(listName);
-              });
+              model.createDeck(listName);
               scrollCtrl.animateTo(scrollCtrl.position.maxScrollExtent + 100,
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut);
@@ -47,13 +45,13 @@ class _HomePageState extends State<HomePage> {
               icon: Icons.delete_forever,
               label: "Delete deck",
               onPressed: () {
-                if (widget.cbs.getActiveDeckI() == -1) {
+                if (model.activeDeckI == -1) {
                   showErrorDialog(
                       context, "Failed to delete", "No selected deck");
                   return;
                 }
 
-                widget.cbs.deleteDeck(widget.cbs.getActiveDeckI());
+                model.deleteDeck(model.activeDeckI);
               }),
           const Divider(),
           Expanded(
@@ -76,14 +74,12 @@ class _HomePageState extends State<HomePage> {
                                     textAlign: TextAlign.right)
                               ])
                             ] +
-                            widget.cbs
-                                .getDecks()
+                            model.decks
                                 .mapIndexed((i, deck) => TableRow(
                                       decoration: BoxDecoration(
-                                          color:
-                                              i == widget.cbs.getActiveDeckI()
-                                                  ? Colors.grey.shade700
-                                                  : Colors.transparent),
+                                          color: i == model.activeDeckI
+                                              ? Colors.grey.shade700
+                                              : Colors.transparent),
                                       children: [
                                         InkWell(
                                           child: Text(deck.name,
@@ -91,7 +87,7 @@ class _HomePageState extends State<HomePage> {
                                                   decoration: TextDecoration
                                                       .underline)),
                                           onTapDown: (_) {
-                                            widget.cbs.setActiveDeckI(i);
+                                            model.activeDeckI = i;
                                           },
                                         ),
                                         Text(deck.description ?? ""),
