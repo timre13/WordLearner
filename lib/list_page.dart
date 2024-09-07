@@ -30,15 +30,20 @@ enum _OrderMode {
   }
 }
 
-class SeparatorAskerDialog extends StatefulWidget {
-  const SeparatorAskerDialog({super.key});
-
-  @override
-  State<SeparatorAskerDialog> createState() => _SeparatorAskerDialogState();
+class ImportOptionsDialogResult {
+  String separator = ",";
+  bool swapCols = false;
 }
 
-class _SeparatorAskerDialogState extends State<SeparatorAskerDialog> {
-  String? dropdownValue = ",";
+class ImportOptionsDialog extends StatefulWidget {
+  const ImportOptionsDialog({super.key});
+
+  @override
+  State<ImportOptionsDialog> createState() => _ImportOptionsDialogState();
+}
+
+class _ImportOptionsDialogState extends State<ImportOptionsDialog> {
+  var result = ImportOptionsDialogResult();
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +61,7 @@ class _SeparatorAskerDialogState extends State<SeparatorAskerDialog> {
                       children: [
                         const Text("Separator: "),
                         DropdownButton(
-                            value: dropdownValue,
+                            value: result.separator,
                             items: const [
                               DropdownMenuItem(value: ",", child: Text(",")),
                               DropdownMenuItem(value: ";", child: Text(";")),
@@ -65,9 +70,21 @@ class _SeparatorAskerDialogState extends State<SeparatorAskerDialog> {
                               DropdownMenuItem(value: "/", child: Text("/")),
                             ],
                             onChanged: (value) {
-                              print(value);
                               setState(() {
-                                dropdownValue = value;
+                                result.separator = value!;
+                              });
+                            })
+                      ]),
+                  Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const Text("Swap Columns: "),
+                        Checkbox(
+                            value: result.swapCols,
+                            onChanged: (value) {
+                              setState(() {
+                                result.swapCols = value!;
                               });
                             })
                       ]),
@@ -77,7 +94,7 @@ class _SeparatorAskerDialogState extends State<SeparatorAskerDialog> {
                       children: [
                         TextButton(
                             onPressed: () {
-                              Navigator.pop(context, dropdownValue);
+                              Navigator.pop(context, result);
                             },
                             child: const Text("OK")),
                         TextButton(
@@ -90,11 +107,12 @@ class _SeparatorAskerDialogState extends State<SeparatorAskerDialog> {
   }
 }
 
-Future<String?> askSeparator(BuildContext context) async {
+Future<ImportOptionsDialogResult?> askImportOptions(
+    BuildContext context) async {
   return await showDialog(
       context: context,
       builder: (context) {
-        return const SeparatorAskerDialog();
+        return const ImportOptionsDialog();
       });
 }
 
@@ -107,8 +125,8 @@ class _ListPageState extends State<ListPage>
   bool get wantKeepAlive => true;
 
   void importBtnCb() async {
-    final sep = await askSeparator(context);
-    if (sep == null) {
+    final opts = await askImportOptions(context);
+    if (opts == null) {
       return;
     }
 
@@ -126,8 +144,11 @@ class _ListPageState extends State<ListPage>
           value.files[0].path != null) {
         List<Word> words = [];
         try {
-          words =
-              wordListRemoveDups(loadWordsOrThrow(value.files[0].path!, sep));
+          words = wordListRemoveDups(
+              loadWordsOrThrow(value.files[0].path!, opts.separator));
+          if (opts.swapCols) {
+            words = wordListSwapSides(words);
+          }
         } on FormatException catch (e) {
           showErrorDialog(context, "Failed to load wordlist", e.message);
         } on FileSystemException catch (e) {

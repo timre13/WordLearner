@@ -77,6 +77,12 @@ List<Word> wordListRemoveDups(List<Word> words) {
     ..retainWhere((element) => ids.add(element.toString().hashCode));
 }
 
+List<Word> wordListSwapSides(List<Word> words) {
+  return words
+      .map((e) => Word(e.side2, e.side1, e.dateCreated, e._priority))
+      .toList();
+}
+
 int _getRandomWordIWithPriority(List<Word> words, [int lastVal = -1]) {
   final sum = words.map((e) => e.priority).reduce((val, elem) => val + elem);
   int randomWeight = (Random().nextDouble() * sum).round();
