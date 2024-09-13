@@ -49,6 +49,11 @@ class MainModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void renameDeck(i, String newName) {
+    _db.renameDeck(decks[i].dbId, newName);
+    notifyListeners();
+  }
+
   set activeDeckI(int val) {
     _activeDeckI = val;
     notifyListeners();

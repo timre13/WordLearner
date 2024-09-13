@@ -256,6 +256,20 @@ class Database {
       ..dispose();
   }
 
+  void renameDeck(int dbId, String newName) {
+    if (kDebugMode) {
+      print("Renaming deck with DB ID $dbId to $newName");
+    }
+
+    _db.prepare("""
+        UPDATE decks
+        SET name = ?
+        WHERE id = ?
+    """)
+      ..execute([newName, dbId])
+      ..dispose();
+  }
+
   int getDeckCount() {
     if (kDebugMode) {
       print("Getting deck count");

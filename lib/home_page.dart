@@ -53,6 +53,32 @@ class _HomePageState extends State<HomePage> {
                   }),
                 ),
                 HomePageButton(
+                  icon: Icons.edit,
+                  label: "Rename deck...",
+                  onPressed: () async {
+                    if (model.activeDeckI == -1) {
+                      showErrorDialog(
+                          context, "Failed to rename", "No selected deck");
+                      return;
+                    }
+
+                    var newName = await showDialog(
+                        context: context,
+                        builder: (context) => const TextDialog(
+                            title: "Rename Deck", fieldText: "Deck name"));
+                    if (newName == null) {
+                      return;
+                    }
+
+                    model.renameDeck(model.activeDeckI, newName);
+
+                    scrollCtrl.animateTo(
+                        scrollCtrl.position.maxScrollExtent + 100,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut);
+                  },
+                ),
+                HomePageButton(
                     icon: Icons.delete_forever,
                     label: "Delete deck",
                     onPressed: () {
