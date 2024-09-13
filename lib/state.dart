@@ -32,6 +32,8 @@ class MainModel extends ChangeNotifier {
       ? null
       : decks[_activeDeckI];
 
+  bool doesDeckExist(String name) => _db.doesDeckExist(name);
+
   // ---------- Setters ----------
 
   void createDeck(name) {

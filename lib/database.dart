@@ -223,6 +223,21 @@ class Database {
       ..dispose();
   }
 
+  bool doesDeckExist(String name) {
+    if (kDebugMode) {
+      print("Checking existence of deck with name $name");
+    }
+
+    var query = _db.prepare("""
+      SELECT COUNT(id) AS count FROM decks WHERE name = ?
+      """);
+    sqlite.ResultSet queryResults = query.select([name]);
+    query.dispose();
+    var result = queryResults[0]["count"];
+    assert(result == 0 || result == 1);
+    return result == 1;
+  }
+
   void deleteDeck(int dbId) {
     if (kDebugMode) {
       print("Deleting deck with DB ID $dbId");

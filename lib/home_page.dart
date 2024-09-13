@@ -40,6 +40,11 @@ class _HomePageState extends State<HomePage> {
                     if (listName == null) {
                       return;
                     }
+                    if (model.doesDeckExist(listName)) {
+                      showErrorDialog(context, "Error Creating Deck",
+                          "Deck with name \"$listName\" already exists");
+                      return;
+                    }
                     model.createDeck(listName);
                     scrollCtrl.animateTo(
                         scrollCtrl.position.maxScrollExtent + 100,
