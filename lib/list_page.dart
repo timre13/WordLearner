@@ -47,63 +47,60 @@ class _ImportOptionsDialogState extends State<ImportOptionsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-        shape: Border.all(),
-        child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        const Text("Separator: "),
-                        DropdownButton(
-                            value: result.separator,
-                            items: const [
-                              DropdownMenuItem(value: ",", child: Text(",")),
-                              DropdownMenuItem(value: ";", child: Text(";")),
-                              DropdownMenuItem(value: "\t", child: Text("Tab")),
-                              DropdownMenuItem(value: "|", child: Text("|")),
-                              DropdownMenuItem(value: "/", child: Text("/")),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                result.separator = value!;
-                              });
-                            })
-                      ]),
-                  Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        const Text("Swap Columns: "),
-                        Checkbox(
-                            value: result.swapCols,
-                            onChanged: (value) {
-                              setState(() {
-                                result.swapCols = value!;
-                              });
-                            })
-                      ]),
-                  Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pop(context, result);
-                            },
-                            child: const Text("OK")),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Cancel"))
-                      ])
-                ])));
+    return SimpleDialog(shape: Border.all(), children: [
+      Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      const Text("Separator: "),
+                      DropdownButton(
+                          value: result.separator,
+                          items: const [
+                            DropdownMenuItem(value: ",", child: Text(",")),
+                            DropdownMenuItem(value: ";", child: Text(";")),
+                            DropdownMenuItem(value: "\t", child: Text("Tab")),
+                            DropdownMenuItem(value: "|", child: Text("|")),
+                            DropdownMenuItem(value: "/", child: Text("/")),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              result.separator = value!;
+                            });
+                          })
+                    ]),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      const Text("Swap Columns: "),
+                      Checkbox(
+                          value: result.swapCols,
+                          onChanged: (value) {
+                            setState(() {
+                              result.swapCols = value!;
+                            });
+                          })
+                    ]),
+                Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, result);
+                          },
+                          child: const Text("OK")),
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Cancel"))
+                    ])
+              ]))
+    ]);
   }
 }
 
@@ -133,11 +130,13 @@ class _ListPageState extends State<ListPage>
     assert(mounted);
     if (!mounted) return;
     final model = Provider.of<MainModel>(context, listen: false);
+    final areFileExtsSupported = !Platform.isAndroid;
     FilePicker.platform
         .pickFiles(
-      allowMultiple: false,
-      type: FileType.any,
-    )
+            allowMultiple: false,
+            type: areFileExtsSupported ? FileType.custom : FileType.any,
+            allowedExtensions:
+                areFileExtsSupported ? ["txt", "csv", "tsv"] : null)
         .then((value) {
       if (value != null &&
           value.files.isNotEmpty &&

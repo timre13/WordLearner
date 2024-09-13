@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -43,18 +45,22 @@ class _SettingsPageState extends State<SettingsPage>
           )
         ],
       ),
-      Row(
-        children: [
-          const Text("Hide system UI: "),
-          CupertinoSwitch(
-              value: settings.hideNotifAndNavBar,
-              onChanged: (value) {
-                settings.hideNotifAndNavBar = value;
-              },
-              trackColor: Colors.blueGrey.shade800,
-              activeColor: const Color(0xFF4CAF90))
-        ],
-      ),
+      ...((Platform.isAndroid || Platform.isIOS)
+          ? [
+              Row(
+                children: [
+                  const Text("Hide system UI: "),
+                  CupertinoSwitch(
+                      value: settings.hideNotifAndNavBar,
+                      onChanged: (value) {
+                        settings.hideNotifAndNavBar = value;
+                      },
+                      trackColor: Colors.blueGrey.shade800,
+                      activeColor: const Color(0xFF4CAF90))
+                ],
+              )
+            ]
+          : []),
       Row(
         children: [
           const Text("Export theme: "),

@@ -21,34 +21,31 @@ class _TextDialogState extends State<TextDialog> {
         decoration: InputDecoration(labelText: widget.fieldText),
         textCapitalization: TextCapitalization.sentences);
 
-    return Dialog(
-        shape: const ContinuousRectangleBorder(),
-        child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(widget.title, style: const TextStyle(fontSize: 20)),
-                Padding(padding: const EdgeInsets.all(10), child: field),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      TextButton(
-                          onPressed: () {
-                            var val = textEditController.value.text.trim();
-                            if (val.isNotEmpty) {
-                              Navigator.pop(context, val);
-                            }
-                          },
-                          child:
-                              const Text("OK", style: TextStyle(fontSize: 16))),
-                      TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text("Cancel",
-                              style: TextStyle(fontSize: 16))),
-                    ])
-              ],
-            )));
+    return SimpleDialog(shape: const ContinuousRectangleBorder(), children: [
+      Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(widget.title, style: const TextStyle(fontSize: 20)),
+              Padding(padding: const EdgeInsets.all(10), child: field),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                TextButton(
+                    onPressed: () {
+                      var val = textEditController.value.text.trim();
+                      if (val.isNotEmpty) {
+                        Navigator.pop(context, val);
+                      }
+                    },
+                    child: const Text("OK", style: TextStyle(fontSize: 16))),
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child:
+                        const Text("Cancel", style: TextStyle(fontSize: 16))),
+              ])
+            ],
+          ))
+    ]);
   }
 
   @override

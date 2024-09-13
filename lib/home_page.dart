@@ -24,35 +24,42 @@ class _HomePageState extends State<HomePage> {
           const Padding(
               padding: EdgeInsets.only(bottom: 10),
               child: Text("Word Learner", textScaler: TextScaler.linear(2))),
-          HomePageButton(
-            icon: Icons.file_open,
-            label: "Create deck...",
-            onPressed: () => showDialog(
-                context: context,
-                builder: (context) => const TextDialog(
-                    title: "Create Deck",
-                    fieldText: "Deck name")).then((listName) {
-              if (listName == null) {
-                return;
-              }
-              model.createDeck(listName);
-              scrollCtrl.animateTo(scrollCtrl.position.maxScrollExtent + 100,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut);
-            }),
-          ),
-          HomePageButton(
-              icon: Icons.delete_forever,
-              label: "Delete deck",
-              onPressed: () {
-                if (model.activeDeckI == -1) {
-                  showErrorDialog(
-                      context, "Failed to delete", "No selected deck");
-                  return;
-                }
+          Wrap(
+              direction: Axis.horizontal,
+              spacing: 15,
+              runSpacing: 5,
+              children: [
+                HomePageButton(
+                  icon: Icons.file_open,
+                  label: "Create deck...",
+                  onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => const TextDialog(
+                          title: "Create Deck",
+                          fieldText: "Deck name")).then((listName) {
+                    if (listName == null) {
+                      return;
+                    }
+                    model.createDeck(listName);
+                    scrollCtrl.animateTo(
+                        scrollCtrl.position.maxScrollExtent + 100,
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut);
+                  }),
+                ),
+                HomePageButton(
+                    icon: Icons.delete_forever,
+                    label: "Delete deck",
+                    onPressed: () {
+                      if (model.activeDeckI == -1) {
+                        showErrorDialog(
+                            context, "Failed to delete", "No selected deck");
+                        return;
+                      }
 
-                model.deleteDeck(model.activeDeckI);
-              }),
+                      model.deleteDeck(model.activeDeckI);
+                    })
+              ]),
           const Divider(),
           Expanded(
               child: Padding(
@@ -125,17 +132,20 @@ class HomePageButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton(
-      style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith(
-              (states) => const Color.fromRGBO(255, 255, 255, 0.1))),
-      onPressed: onPressed,
-      child: Row(children: [
-        Icon(icon, color: Colors.white),
-        Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Text(label, style: const TextStyle(color: Colors.white))),
-      ]),
-    );
+    return ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 300, minWidth: 300),
+        child: OutlinedButton(
+          style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.resolveWith(
+                  (states) => const Color.fromRGBO(255, 255, 255, 0.1))),
+          onPressed: onPressed,
+          child: Row(children: [
+            Icon(icon, color: Colors.white),
+            Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child:
+                    Text(label, style: const TextStyle(color: Colors.white))),
+          ]),
+        ));
   }
 }

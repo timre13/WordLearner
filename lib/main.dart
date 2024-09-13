@@ -43,7 +43,7 @@ class App extends StatelessWidget {
           indicator: BoxDecoration(),
         ),
       ),
-      home: const WrapperWidget(),
+      home: const ExcludeFocus(child: WrapperWidget()),
     );
   }
 }
@@ -155,8 +155,14 @@ class _MainWidgetState extends State<MainWidget> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsModel>(context);
+    final showLargeTabs = MediaQuery.of(context).size.width > 600;
     return Scaffold(
         bottomNavigationBar: TabBar(
+          isScrollable: showLargeTabs ? true : false,
+          tabAlignment: showLargeTabs ? TabAlignment.center : TabAlignment.fill,
+          labelPadding: showLargeTabs
+              ? const EdgeInsets.symmetric(horizontal: 20)
+              : EdgeInsets.zero,
           tabs: Iterable.generate(_pageIcons.length)
               .toList()
               .map((i) => Tab(
