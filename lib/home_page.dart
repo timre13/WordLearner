@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage> {
               child: Text("Word Learner", textScaler: TextScaler.linear(2))),
           Wrap(
               direction: Axis.horizontal,
+              alignment: WrapAlignment.center,
               spacing: 15,
               runSpacing: 5,
               children: [
