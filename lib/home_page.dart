@@ -120,21 +120,23 @@ class _HomePageState extends State<HomePage> {
                                               ? Colors.grey.shade700
                                               : Colors.transparent),
                                       children: [
-                                        InkWell(
-                                          child: Text(deck.name,
-                                              style: const TextStyle(
-                                                  decoration: TextDecoration
-                                                      .underline)),
-                                          onTapDown: (_) {
-                                            model.activeDeckI = i;
-                                          },
-                                        ),
+                                        Text(deck.name,
+                                            style: const TextStyle(
+                                                decoration:
+                                                    TextDecoration.underline)),
                                         Text(deck.description ?? ""),
                                         Text(
                                             deck.cards?.length.toString() ??
                                                 "???",
                                             textAlign: TextAlign.right),
-                                      ],
+                                      ]
+                                          .map((e) => InkWell(
+                                                child: e,
+                                                onTapDown: (_) {
+                                                  model.activeDeckI = i;
+                                                },
+                                              ))
+                                          .toList(),
                                     ))
                                 .toList(growable: false),
                         columnWidths: const {
