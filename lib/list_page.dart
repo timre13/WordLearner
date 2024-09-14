@@ -62,6 +62,7 @@ class _ImportOptionsDialogState extends State<ImportOptionsDialog> {
                           items: const [
                             DropdownMenuItem(value: ",", child: Text(",")),
                             DropdownMenuItem(value: ";", child: Text(";")),
+                            DropdownMenuItem(value: ":", child: Text(":")),
                             DropdownMenuItem(value: "\t", child: Text("Tab")),
                             DropdownMenuItem(value: "|", child: Text("|")),
                             DropdownMenuItem(value: "/", child: Text("/")),
