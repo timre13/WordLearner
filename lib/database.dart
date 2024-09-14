@@ -161,7 +161,8 @@ class Database {
     }
     deck.cards = [];
     for (final sqlite.Row row in queryResults) {
-      deck.cards!.add(Word(
+      deck.cards!.add(Word.withDbId(
+        row["id"] as int,
         row["frontSideText"] as String,
         row["backSideText"] as String,
         DateTime.fromMillisecondsSinceEpoch((row["dateCreated"] as int) * 1000),
@@ -286,5 +287,28 @@ class Database {
       print("Got deck count");
     }
     return result;
+  }
+
+  void modifyCard(Word card) {
+    if (kDebugMode) {
+      print("Modifying card: $card");
+    }
+
+    // We want to modify an already existing card
+    assert(card.dbId != null);
+
+    var query = _db.prepare("""
+      UPDATE cards
+      SET frontSideText = ?, backSideText = ?, dateCreated = ?, priority = ?
+      WHERE id = ?;
+    """);
+    query.execute([
+      card.side1,
+      card.side2,
+      card.dateCreated.millisecondsSinceEpoch ~/ 1000,
+      (card.priority == 100 ? null : card.priority),
+      card.dbId
+    ]);
+    query.dispose();
   }
 }

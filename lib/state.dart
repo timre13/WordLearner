@@ -80,4 +80,9 @@ class MainModel extends ChangeNotifier {
     _db.addCardsToDeck(activeDeck!.dbId, cards);
     notifyListeners();
   }
+
+  void modifyCard(Word card) {
+    _db.modifyCard(card);
+    notifyListeners();
+  }
 }

@@ -8,6 +8,8 @@ const incPrioVal = 10;
 const decPrioVal = 1;
 
 class Word {
+  // Null if the card was created, non-null if the card was loaded from the database
+  int? dbId;
   String side1;
   String side2;
   DateTime dateCreated;
@@ -38,6 +40,11 @@ class Word {
 
   Word(this.side1, this.side2, this.dateCreated, [int? priority])
       : _priority = priority ?? 100;
+
+  Word.withDbId(int dbId_, this.side1, this.side2, this.dateCreated,
+      [int? priority])
+      : _priority = priority ?? 100,
+        dbId = dbId_;
 }
 
 List<Word> loadWordsOrThrow(String path, String colSep) {
