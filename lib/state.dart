@@ -85,4 +85,9 @@ class MainModel extends ChangeNotifier {
     _db.modifyCard(card);
     notifyListeners();
   }
+
+  void deleteCards(List<Word> cards) {
+    _db.deleteCards(cards);
+    notifyListeners();
+  }
 }

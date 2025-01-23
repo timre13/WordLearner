@@ -311,4 +311,20 @@ class Database {
     ]);
     query.dispose();
   }
+
+  void deleteCards(List<Word> cards) {
+    if (kDebugMode) {
+      print("Deleting cards: $cards");
+    }
+
+    var query = _db.prepare("""
+      DELETE FROM cards
+      WHERE id = ?;
+    """);
+    for (final c in cards) {
+      assert(c.dbId != null);
+      query.execute([c.dbId]);
+    }
+    query.dispose();
+  }
 }

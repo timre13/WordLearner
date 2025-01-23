@@ -118,6 +118,7 @@ class _ListPageState extends State<ListPage>
     with AutomaticKeepAliveClientMixin {
   _OrderMode orderMode = _OrderMode.original;
   bool showPriors = false;
+  List<int> selectedItemIs = [];
 
   @override
   bool get wantKeepAlive => true;
@@ -127,6 +128,8 @@ class _ListPageState extends State<ListPage>
     if (opts == null) {
       return;
     }
+
+    selectedItemIs = [];
 
     assert(mounted);
     if (!mounted) return;
@@ -180,7 +183,11 @@ class _ListPageState extends State<ListPage>
     }
 
     var listWidget = deck.cards!.isNotEmpty
-        ? WordListWidget(words: cards, showPriors: showPriors)
+        ? WordListWidget(
+            words: cards,
+            showPriors: showPriors,
+            selectedItemIs: selectedItemIs,
+            onSelectionChanged: (selection) => selectedItemIs = selection)
         : null;
     return Scaffold(
       appBar: AppBar(
@@ -198,6 +205,7 @@ class _ListPageState extends State<ListPage>
                     onPressed: () {
                       setState(() {
                         orderMode = e;
+                        selectedItemIs = [];
                       });
                     }))
                 .toList(growable: false)
@@ -219,6 +227,40 @@ class _ListPageState extends State<ListPage>
                           onTap: importBtnCb,
                           child: const Text("Import Cards"),
                         ),
+                        const PopupMenuDivider(),
+                        PopupMenuItem(
+                            onTap: () async {
+                              assert(selectedItemIs.length == 1);
+                              final newVal = await CardEditingDialog.show(
+                                  context, cards[selectedItemIs[0]]);
+                              if (newVal != null) {
+                                assert(context.mounted);
+                                if (!context.mounted) return;
+                                final model = Provider.of<MainModel>(context,
+                                    listen: false);
+                                model.modifyCard(newVal);
+                              }
+                              setState(() {
+                                selectedItemIs = [];
+                              });
+                            },
+                            enabled: selectedItemIs.length == 1,
+                            child: const Text("Edit Selected")),
+                        PopupMenuItem(
+                            onTap: () {
+                              assert(selectedItemIs.isNotEmpty);
+                              assert(context.mounted);
+                              if (!context.mounted) return;
+                              final model = Provider.of<MainModel>(context,
+                                  listen: false);
+                              model.deleteCards(
+                                  selectedItemIs.map((e) => cards[e]).toList());
+                              setState(() {
+                                selectedItemIs = [];
+                              });
+                            },
+                            enabled: selectedItemIs.isNotEmpty,
+                            child: const Text("Delete Selected")),
                       ])
             ].cast<Widget>(),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,

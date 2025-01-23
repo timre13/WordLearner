@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:word_learner/state.dart';
 import 'package:word_learner/words.dart';
 
 class WordListWidget extends StatefulWidget {
-  WordListWidget({super.key, required this.words, required this.showPriors});
+  WordListWidget(
+      {super.key,
+      required this.words,
+      required this.showPriors,
+      required this.selectedItemIs,
+      required this.onSelectionChanged});
 
   final List<Word> words;
   final bool showPriors;
+  final List<int> selectedItemIs;
+  final void Function(List<int> selection) onSelectionChanged;
   final _scrollController = ScrollController();
 
   void scrollToTop() {
@@ -23,6 +28,20 @@ class WordListWidget extends StatefulWidget {
 class _WordListWidgetState extends State<WordListWidget> {
   @override
   Widget build(BuildContext context) {
+    void longTapOrRightClickCallback(int index) async {
+      if (widget.selectedItemIs.contains(index)) {
+        setState(() {
+          widget.selectedItemIs.remove(index);
+          widget.onSelectionChanged(widget.selectedItemIs);
+        });
+      } else {
+        setState(() {
+          widget.selectedItemIs.add(index);
+          widget.onSelectionChanged(widget.selectedItemIs);
+        });
+      }
+    }
+
     return ListView.separated(
         controller: widget._scrollController,
         physics: const BouncingScrollPhysics(),
@@ -58,28 +77,13 @@ class _WordListWidgetState extends State<WordListWidget> {
                                 style: textStyle,
                                 maxLines: 1),
                           ]
+                        : []) +
+                    (widget.selectedItemIs.contains(index)
+                        ? [Checkbox(value: true, onChanged: (value) {})]
                         : []),
               ),
-              onLongPress: () async {
-                final newVal =
-                    await CardEditingDialog.show(context, widget.words[index]);
-                if (newVal != null) {
-                  assert(context.mounted);
-                  if (!context.mounted) return;
-                  final model = Provider.of<MainModel>(context, listen: false);
-                  model.modifyCard(newVal);
-                }
-              },
-              onSecondaryTap: () async {
-                final newVal =
-                    await CardEditingDialog.show(context, widget.words[index]);
-                if (newVal != null) {
-                  assert(context.mounted);
-                  if (!context.mounted) return;
-                  final model = Provider.of<MainModel>(context, listen: false);
-                  model.modifyCard(newVal);
-                }
-              });
+              onLongPress: () => longTapOrRightClickCallback(index),
+              onSecondaryTap: () => longTapOrRightClickCallback(index));
         });
   }
 }
