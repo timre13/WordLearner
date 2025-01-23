@@ -78,8 +78,13 @@ class _WordListWidgetState extends State<WordListWidget> {
                                 maxLines: 1),
                           ]
                         : []) +
-                    (widget.selectedItemIs.contains(index)
-                        ? [Checkbox(value: true, onChanged: (value) {})]
+                    (widget.selectedItemIs.isNotEmpty
+                        ? [
+                            Checkbox(
+                                value: widget.selectedItemIs.contains(index),
+                                onChanged: (_) =>
+                                    longTapOrRightClickCallback(index))
+                          ]
                         : []),
               ),
               onLongPress: () => longTapOrRightClickCallback(index),
