@@ -206,6 +206,7 @@ class _ListPageState extends State<ListPage>
                       setState(() {
                         orderMode = e;
                         selectedItemIs = [];
+                        listWidget?.scrollToTop();
                       });
                     }))
                 .toList(growable: false)
